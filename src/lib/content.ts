@@ -121,8 +121,8 @@ export function markdown(page: Page): string {
 export function markdownCopy(page: Page): string {
 	const absolute = markdown(page)
 		.replace(/\]\(\//g, `](${site}/`)
-		.replace(/^([ \t]*)```rust[ \t]*$/gm, (_, indent: string) =>
-			`${indent}Pseudo-Rust: an illustration, not a program. Real, compiled code is in the book: ${site}/book/rust/\n\n${indent}\`\`\`rust`,
+		.replace(/^([ \t]*)((?:```|~~~)rust\b.*)$/gm, (_, indent: string, fence: string) =>
+			`${indent}Pseudo-Rust: an illustration, not a program. Real, compiled code is in the book: ${site}/book/rust/\n\n${indent}${fence}`,
 		);
 	return `${absolute.trim()}\n\n---\n\nThis is the Markdown copy of ${site}${page.path}, made from the same source.\n`;
 }

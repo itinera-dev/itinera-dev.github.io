@@ -90,14 +90,14 @@ function status(): string {
 	return `**Status:** ${lines.join(' ')}`;
 }
 
-/** Who implements tier 1, and where each stands, as a sentence. */
+/** Who implements tier 1, and where each stands: one sentence per language. */
 function implementations(): string {
-	const parts = LANGUAGES.filter((language) => language.state !== 'planned').map((language) =>
+	const sentences = LANGUAGES.filter((language) => language.state !== 'planned').map((language) =>
 		language.state === 'preparing'
-			? `${language.name} ${language.version} implements it, and is in preparation`
-			: `${language.name} ${language.version} implements it`,
+			? `${language.name} ${language.version} implements it, and is in preparation.`
+			: `${language.name} ${language.version} implements it.`,
 	);
-	return parts.length === 0 ? 'No language implements it yet.' : `${list(parts)}.`;
+	return sentences.length === 0 ? 'No language implements it yet.' : sentences.join(' ');
 }
 
 /** The posts, newest first, or a sentence saying there are none yet. */
