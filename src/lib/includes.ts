@@ -26,6 +26,8 @@ export interface Language {
 	book?: string;
 	api?: string;
 	manifest?: string;
+	/** Where its architecture is drawn: how it is put together and how it runs a journey. */
+	architecture?: string;
 }
 
 export const LANGUAGES = languages as Language[];
@@ -71,6 +73,9 @@ function languagesDetails(): string {
 				`- **The book:** [the ${language.name} edition](${language.book}), starting at [Quick start](${language.book}quick-start/).`,
 				`- **API reference:** [${language.api?.replace(/^https:\/\//, '')}](${language.api})${published ? '' : ', once the package is published'}.`,
 				`- **Source:** [${language.repository?.replace(/^https:\/\/github\.com\//, '')}](${language.repository}).`,
+				...(language.architecture
+					? [`- **Architecture:** [how it works inside](${language.architecture}): how it is put together and how it runs a journey, drawn tier by tier.`]
+					: []),
 				`- **What it claims:** its [conformance manifest](${language.manifest}) lists every proposal it implements and the conformance cases it runs. ${
 					published ? 'Its release carries the conformance report that proves it.' : 'Its first release will carry the conformance report that proves it.'
 				}`,

@@ -1,7 +1,7 @@
 {
 	"about": "What the site's links outside its own build may point at, so the link check can verify them without the network. Refresh it when the book or the specification moves: the book's pages from rust/chapters/README.md of itinera-dev/book, the specification's files from its git tree at the ref in site.config.mjs.",
 	"book": {
-		"commit": "46a5e322e06fb21e6f954e0e9d7a58066069b744",
+		"commit": "dee07a6475136abf5b29affd55227adef7f26b30",
 		"pages": [
 			"/book/",
 			"/book/rust/",
@@ -41,6 +41,8 @@
 			"/book/rust/26-from-tangled-code-to-a-workflow/",
 			"/book/rust/27-mistakes-caught-before-a-journey/",
 			"/book/rust/28-declaring-by-hand/",
+			"/book/rust/29-using-a-step-in-another-workflow/",
+			"/book/rust/30-working-with-agents/",
 			"/book/rust/appendix-1-cheat-sheet/",
 			"/book/rust/appendix-2-glossary/",
 			"/book/rust/appendix-3-what-this-version-supports/"

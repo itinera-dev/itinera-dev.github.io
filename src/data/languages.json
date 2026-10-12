@@ -12,7 +12,8 @@
 		"repository": "https://github.com/itinera-dev/itinera-rs",
 		"book": "/book/rust/",
 		"api": "https://docs.rs/itinera",
-		"manifest": "https://github.com/itinera-dev/itinera-rs/blob/main/conformance.json"
+		"manifest": "https://github.com/itinera-dev/itinera-rs/blob/main/conformance.json",
+		"architecture": "https://github.com/itinera-dev/itinera-rs/blob/main/docs/architecture.md"
 	},
 	{
 		"id": "typescript",
