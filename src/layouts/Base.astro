@@ -32,8 +32,10 @@ const NAVIGATION = [
 	{ label: 'Why Itinera', href: '/why/' },
 	{ label: 'Book', href: book },
 	{ label: 'Languages', href: '/languages/' },
+	{ label: 'Releases', href: '/releases/' },
 	{ label: 'Specification', href: '/specification/' },
 	{ label: 'Roadmap', href: '/roadmap/' },
+	{ label: 'News', href: '/news/' },
 	{ label: 'Contribute', href: '/contribute/' },
 ];
 const current = (href: string) => Astro.url.pathname === href;
@@ -79,7 +81,9 @@ const commit = built.commit.slice(0, 7);
 					<span class="masthead__name">Itinera</span>
 				</a>
 				<nav class="masthead__nav" aria-label="Site">
-					<ul>
+					{/* Shown by src/scripts/menu.ts, which folds the list behind it on narrow screens. */}
+					<button class="masthead__toggle" type="button" aria-expanded="true" aria-controls="site-navigation" hidden>Menu</button>
+					<ul id="site-navigation">
 						{
 							NAVIGATION.map(({ label, href }) => (
 								<li>
@@ -100,8 +104,6 @@ const commit = built.commit.slice(0, 7);
 			<div class="site-footer__inner">
 				<nav aria-label="More about Itinera">
 					<ul class="site-footer__links">
-						<li><a href="/releases/">Releases</a></li>
-						<li><a href="/news/">News</a></li>
 						<li><a href="/news/feed.xml">News feed</a></li>
 						<li><a href="/brand/">Brand</a></li>
 						<li><a href="/accessibility/">Accessibility</a></li>
@@ -128,6 +130,7 @@ const commit = built.commit.slice(0, 7);
 		</footer>
 		<script>
 			import '../scripts/diagrams.ts';
+			import '../scripts/menu.ts';
 		</script>
 	</body>
 </html>

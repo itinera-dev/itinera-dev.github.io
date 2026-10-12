@@ -95,6 +95,34 @@ So separating process from logic is no longer a matter of taste. It is a matter 
 
 Isolation is still a discipline: no language can stop a determined developer from reaching outside a step. Itinera makes the disciplined path the shortest one. A step asks for what it needs and is handed it: its inputs by key, the services it uses by key and type, and a place to put what it produces. In Rust, asking is one attribute on a field or a parameter; going to get the same thing yourself is more code, and it stands out in review. People and agents alike take the shortest path, so the shortest path is the isolated one.
 
+## Write it once, use it everywhere
+
+A step knows nothing of the workflow around it, so the same step serves every workflow that needs it: the step that charges a card runs in the checkout, in the subscription renewal and in the one-click reorder, unchanged. Policies travel the same way: a circuit breaker written once can be attached to every step that calls the bank, in every workflow. Each workflow still declares its own retry budgets, rescue steps and policies, so reusing a step never means inheriting someone else's flow.
+
+## One workflow, any executor
+
+A workflow does not know how it will be run. The executor decides that: everything in one process, step by step as tasks, one step per turn across machines with retries waiting on a message queue, or something else entirely. The steps, the policies and the reporters do not change. Executors differ in what they can do, never in what a workflow means.
+
+```mermaid
+flowchart LR
+    accTitle: One workflow, many executors
+    accDescr: The same workflow, with its steps, policies and reporters unchanged, can be handed to different executors. The local executor, synchronous or asynchronous, is available today. An executor that runs each step as a task, one that runs one step per turn on any machine with retries queued on a message queue, and a durable executor that resumes a journey after a crash, are planned.
+    W[One workflow: its steps, policies and reporters, unchanged] --> L[Local executor, in one process, synchronous or asynchronous: available today]
+    W --> T[Task executor, each step a task: planned]
+    W --> D[Distributed executor, one step per turn on any machine, retries queued on a message queue: planned]
+    W --> P[Durable executor, resumes a journey after a crash: planned]
+```
+
+What the diagram shows:
+
+1. One workflow, with its steps, policies and reporters, is handed to an executor, and nothing in it changes from one executor to another.
+2. The local executor runs a journey in one process, synchronously or asynchronously. It is available today.
+3. An executor that runs each step as a task is planned.
+4. An executor that runs one step per turn on whichever machine is free, with retries queued on a message queue, is planned.
+5. A durable executor, which resumes a journey after a crash, is planned.
+
+Today, Itinera has the local executor; the others are planned. That is already enough to build, test and even run in production, then move the same workflow to another executor when you need to, without rewriting it. And once process and logic are separated this way, whether a flow runs in one service or across many becomes the executor's choice, not something written into every step.
+
 ## Workflows that explain themselves
 
 Itinera standardises how flows work, so anyone can understand a flow without opening a single step.
@@ -103,7 +131,7 @@ Itinera standardises how flows work, so anyone can understand a flow without ope
 2. **The declaration can be listed without running anything.** Every workflow can list its steps in order, their policies, input adapters, services and rescue steps.
 3. **Mistakes are refused before any journey.** A workflow put together wrongly is refused when it is built or handed to the executor, with every violation listed, before any journey starts.
 4. **Reporting is guaranteed.** Every executor produces the same stream of events, with every decision and who made it. Nobody has to decide to log, or remember to emit an event.
-5. **Everything is decoupled.** Steps know nothing of the workflow running them, reporters know only events, and a step never knows which implementation of a service it was given.
+5. **Everything is decoupled.** Steps know nothing of the workflow running them, a workflow knows nothing of the executor running it, reporters know only events, and a step never knows which implementation of a service it was given.
 
 ## Languages
 

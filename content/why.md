@@ -139,10 +139,12 @@ This diagram was drawn from the declaration alone, without opening a step:
 ```mermaid
 flowchart LR
     accTitle: The payment workflow
-    accDescr: Three steps in order, authorise, charge and send receipt, then the customer is notified when the journey ends. Authorise may be retried twice and has the circuit breaker policy. Charge has a rescue step that refreshes the card, and its gateway comes from the A/B test provider.
+    accDescr: Three steps in order, authorise, charge and send receipt, then the customer is notified when the journey ends. Authorise may be retried twice and has the circuit breaker policy. Charge has a rescue step that refreshes the card, and its gateway comes from the A/B test provider. An executor runs all of it: the local one today, and others when they come, with nothing in the workflow changed.
+    subgraph EX[Run by an executor: the local one today, others planned]
     A[Authorise: up to 2 retries, circuit breaker policy] --> C[Charge: rescue step refreshes the card; gateway from the A/B test]
     C --> S[Send receipt]
     S --> N[Notify the customer when the journey ends]
+    end
 ```
 
 What the diagram shows:
@@ -151,6 +153,7 @@ What the diagram shows:
 2. Charge runs next. If it fails, its rescue step refreshes the card and charge runs once more. Its gateway, A or B, comes from the A/B test provider.
 3. Send receipt runs last.
 4. When the journey ends, the workflow's policy notifies the customer.
+5. An executor runs all of it: the local one today, and others when they come, with nothing in the workflow changed.
 
 ### What one payment reported
 
@@ -194,9 +197,42 @@ Isolation is still a discipline: nothing in any language can stop a determined d
 2. **The declaration can be listed without running anything.** The specification requires every workflow to be listable: each step's name and position, its policies in order, its input adapter, the services it requests and the provider serving each, and its rescue step. A workflow literally explains itself.
 3. **Mistakes are refused before any journey.** A workflow put together wrongly is refused before any journey, when it is built or handed to the executor, listing every violation. In Rust, several mistakes cannot even be written: they are compile errors.
 4. **Reporting is guaranteed.** Every executor produces the same event stream, with every decision and who made it. Nobody has to decide to log, or remember to emit an event.
-5. **Everything is decoupled.** Steps know nothing of the workflow running them. Reporters know nothing of steps or workflows; they receive events. Services are supplied to steps by the workflow's providers, so a step never knows which implementation it was given. Policies get operations through roles, never data they could hide.
+5. **Everything is decoupled.** Steps know nothing of the workflow running them, and a workflow knows nothing of the executor running it. Reporters know nothing of steps or workflows; they receive events. Services are supplied to steps by the workflow's providers, so a step never knows which implementation it was given. Policies get operations through roles, never data they could hide.
 
 Together, these mean anyone can understand a flow without opening a single step: the steps hold the business rules, and everything about the flow is in the declaration and its policies.
+
+### Written once, used everywhere
+
+Because a step knows nothing of the workflow around it, the same step serves every workflow that needs it. The `charge` step of the payment runs unchanged in a subscription renewal or a one-click reorder; the circuit breaker policy can be attached to every step that calls the bank, in every workflow. Each workflow still declares its own retry budgets, rescue steps and policies, so reusing a step or a policy never means inheriting someone else's flow. In the system as it grew, reusing the payment service meant reusing its retries too, whether you wanted them or not.
+
+## One workflow, any executor
+
+The workflow says what happens, in what order, and who decides. It does not say how it is run. That is the executor's job, and the executor is chosen when a journey starts, not written into the workflow:
+
+```mermaid
+flowchart LR
+    accTitle: One workflow, many executors
+    accDescr: The same workflow, with its steps, policies and reporters unchanged, can be handed to different executors. The local executor, synchronous or asynchronous, is available today. An executor that runs each step as a task, one that runs one step per turn on any machine with retries queued on a message queue, and a durable executor that resumes a journey after a crash, are planned.
+    W[One workflow: its steps, policies and reporters, unchanged] --> L[Local executor, in one process, synchronous or asynchronous: available today]
+    W --> T[Task executor, each step a task: planned]
+    W --> D[Distributed executor, one step per turn on any machine, retries queued on a message queue: planned]
+    W --> P[Durable executor, resumes a journey after a crash: planned]
+```
+
+What the diagram shows:
+
+1. One workflow, with its steps, policies and reporters, is handed to an executor, and nothing in it changes from one executor to another.
+2. The local executor runs a journey in one process, synchronously or asynchronously. It is available today.
+3. An executor that runs each step as a task is planned.
+4. An executor that runs one step per turn on whichever machine is free, with retries queued on a message queue, is planned.
+5. A durable executor, which resumes a journey after a crash, is planned.
+
+The steps, the policies and the reporters are the same under every executor. The specification defines what a workflow means, and every executor must keep that meaning: executors differ in what they can do, never in what a workflow means.
+
+Two things follow:
+
+1. **Start local, move later.** Today, Itinera has the local executor, synchronous and asynchronous; the others are planned. You can build, test and even run in production with it, adjust the workflow until it behaves as you want, and later hand the same workflow to another executor when the load or the architecture calls for it, without rewriting a step.
+2. **Services become an executor's choice.** Much of what microservices try to buy is the freedom to run parts of a flow in different places. Once process and logic are separated this way, where each step runs, in one process or across many machines, is decided by the executor, not written into every step. Splitting a flow across machines, or bringing it back together, stops being a rewrite.
 
 ## The one rule left
 
@@ -222,6 +258,7 @@ Itinera's first tier, a single workflow, is specified. <!-- include: implementat
 - **Back off**, waiting between attempts, is planned.
 - **Moving a journey to another workflow**, such as an A/B test between whole flows, is tier 2, and planned.
 - **Durable runs**, journeys that can resume after a crash, come in a later tier.
+- **Executors other than the local one**, such as running steps as tasks or across machines, are planned.
 
 The [roadmap](/roadmap/) has the order.
 

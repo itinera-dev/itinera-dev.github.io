@@ -180,6 +180,61 @@ a:hover {
 	text-decoration-thickness: 2px;
 }
 
+/* On a narrow screen the list folds behind the Menu button; see src/scripts/menu.ts. */
+.masthead__toggle {
+	min-height: 2.75rem;
+	padding: 0.375rem 0.875rem;
+	border: 1px solid var(--rule-strong);
+	border-radius: 0.375rem;
+	background: var(--paper);
+	color: var(--ink);
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.masthead__toggle[hidden] {
+	display: none;
+}
+
+.masthead__toggle[aria-expanded='true'] {
+	background: var(--paper-raised);
+}
+
+@media (max-width: 47.99rem) {
+	.masthead {
+		position: relative;
+	}
+
+	.masthead__nav[data-menu] ul {
+		position: absolute;
+		z-index: 1;
+		top: 100%;
+		right: 0;
+		left: 0;
+		flex-direction: column;
+		gap: 0;
+		padding: 0.25rem var(--gutter) 0.75rem;
+		border-bottom: 1px solid var(--rule);
+		background: var(--paper);
+	}
+
+	.masthead__nav[data-menu] a {
+		display: block;
+		padding: 0.625rem 0;
+	}
+
+	.masthead__nav[data-menu='closed'] ul {
+		display: none;
+	}
+}
+
+@media (min-width: 48rem) {
+	.masthead__toggle:not([hidden]) {
+		display: none;
+	}
+}
+
 .page {
 	max-width: calc(var(--measure) + 2 * var(--gutter));
 	margin: 0 auto;
