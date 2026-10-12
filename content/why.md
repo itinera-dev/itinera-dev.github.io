@@ -139,7 +139,7 @@ This diagram was drawn from the declaration alone, without opening a step:
 ```mermaid
 flowchart LR
     accTitle: The payment workflow
-    accDescr: Three steps in order, authorise, charge and send receipt, then the customer is notified when the journey ends. Authorise may be retried twice and has the circuit breaker policy. Charge has a rescue step that refreshes the card, and its gateway comes from the A/B test provider. An executor runs all of it: the local one today, and others when they come, with nothing in the workflow changed.
+    accDescr: Three steps in order, authorise, charge and send receipt, then the customer is notified when the journey ends. Authorise may be retried twice and has the circuit breaker policy. Charge has a rescue step that refreshes the card, and its gateway comes from the A/B test provider. An executor runs all of it: the local one today, and the planned ones later, with nothing in the workflow changed.
     subgraph EX[Run by an executor: the local one today, others planned]
     A[Authorise: up to 2 retries, circuit breaker policy] --> C[Charge: rescue step refreshes the card; gateway from the A/B test]
     C --> S[Send receipt]
@@ -153,7 +153,7 @@ What the diagram shows:
 2. Charge runs next. If it fails, its rescue step refreshes the card and charge runs once more. Its gateway, A or B, comes from the A/B test provider.
 3. Send receipt runs last.
 4. When the journey ends, the workflow's policy notifies the customer.
-5. An executor runs all of it: the local one today, and others when they come, with nothing in the workflow changed.
+5. An executor runs all of it: the local one today, and the planned ones later, with nothing in the workflow changed.
 
 ### What one payment reported
 
@@ -212,27 +212,27 @@ The workflow says what happens, in what order, and who decides. It does not say 
 ```mermaid
 flowchart LR
     accTitle: One workflow, many executors
-    accDescr: The same workflow, with its steps, policies and reporters unchanged, can be handed to different executors. The local executor, synchronous or asynchronous, is available today. An executor that runs each step as a task, one that runs one step per turn on any machine with retries queued on a message queue, and a durable executor that resumes a journey after a crash, are planned.
-    W[One workflow: its steps, policies and reporters, unchanged] --> L[Local executor, in one process, synchronous or asynchronous: available today]
-    W --> T[Task executor, each step a task: planned]
-    W --> D[Distributed executor, one step per turn on any machine, retries queued on a message queue: planned]
+    accDescr: The same workflow, with its steps, policies and reporters unchanged, can be handed to different executors. The local executor, synchronous or asynchronous, is the one specified today. An executor that runs each step as a separate task, in order, one that runs each step as its own job on whichever machine is free with retries queued on a message queue, and a durable executor that resumes a journey after a crash, are planned.
+    W[One workflow: its steps, policies and reporters, unchanged] --> L[Local executor, in one process, synchronous or asynchronous: specified today]
+    W --> T[Task executor, each step a separate task, in order: planned]
+    W --> D[Distributed executor, each step a job on whichever machine is free, retries queued on a message queue: planned]
     W --> P[Durable executor, resumes a journey after a crash: planned]
 ```
 
 What the diagram shows:
 
 1. One workflow, with its steps, policies and reporters, is handed to an executor, and nothing in it changes from one executor to another.
-2. The local executor runs a journey in one process, synchronously or asynchronously. It is available today.
-3. An executor that runs each step as a task is planned.
-4. An executor that runs one step per turn on whichever machine is free, with retries queued on a message queue, is planned.
+2. The local executor runs a journey in one process, synchronously or asynchronously. It is the one the specification defines today, and the one each language implements first.
+3. An executor that runs each step as a separate task, still in order, is planned.
+4. An executor that runs each step as its own job on whichever machine is free, with retries queued on a message queue, is planned.
 5. A durable executor, which resumes a journey after a crash, is planned.
 
 The steps, the policies and the reporters are the same under every executor. The specification defines what a workflow means, and every executor must keep that meaning: executors differ in what they can do, never in what a workflow means.
 
 Two things follow:
 
-1. **Start local, move later.** Today, Itinera has the local executor, synchronous and asynchronous; the others are planned. You can build, test and even run in production with it, adjust the workflow until it behaves as you want, and later hand the same workflow to another executor when the load or the architecture calls for it, without rewriting a step.
-2. **Services become an executor's choice.** Much of what microservices try to buy is the freedom to run parts of a flow in different places. Once process and logic are separated this way, where each step runs, in one process or across many machines, is decided by the executor, not written into every step. Splitting a flow across machines, or bringing it back together, stops being a rewrite.
+1. **Start local, move later.** Today, the specification defines the local executor, synchronous and asynchronous, and the others are planned. Once your language's release is out, you can build, test and deploy on it with confidence, adjust the workflow until it behaves as you want, and later hand the same workflow to another executor when the load or the architecture calls for it, without rewriting a step. The one thing to match is the execution mode: a workflow whose steps, hooks, providers or reporters are asynchronous needs an executor that accepts the asynchronous mode, and is refused before any journey otherwise.
+2. **Where steps run becomes the executor's choice.** Much of what microservices try to buy is the freedom to run parts of a flow in different places. Once process and logic are separated this way, where each step runs, in one process or across many machines, is decided by the executor, not written into every step. Splitting a flow across machines, or bringing it back together, stops being a rewrite.
 
 ## The one rule left
 

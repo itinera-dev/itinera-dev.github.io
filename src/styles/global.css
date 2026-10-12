@@ -197,6 +197,11 @@ a:hover {
 	display: none;
 }
 
+/* With JavaScript the button is shown at once, before src/scripts/menu.ts runs. */
+.js .masthead__toggle[hidden] {
+	display: inline-block;
+}
+
 .masthead__toggle[aria-expanded='true'] {
 	background: var(--paper-raised);
 }
@@ -206,7 +211,7 @@ a:hover {
 		position: relative;
 	}
 
-	.masthead__nav[data-menu] ul {
+	.js .masthead__nav ul {
 		position: absolute;
 		z-index: 1;
 		top: 100%;
@@ -219,18 +224,19 @@ a:hover {
 		background: var(--paper);
 	}
 
-	.masthead__nav[data-menu] a {
+	.js .masthead__nav a {
 		display: block;
 		padding: 0.625rem 0;
 	}
 
-	.masthead__nav[data-menu='closed'] ul {
+	.js .masthead__nav:not([data-menu='open']) ul {
 		display: none;
 	}
 }
 
 @media (min-width: 48rem) {
-	.masthead__toggle:not([hidden]) {
+	.masthead__toggle,
+	.js .masthead__toggle[hidden] {
 		display: none;
 	}
 }

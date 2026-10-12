@@ -4,7 +4,7 @@
 
 import '../styles/global.css';
 
-import { book, built, organisation, repository } from '../../site.config.mjs';
+import { book, built, maintainers, organisation, repository } from '../../site.config.mjs';
 import Mark from '../components/Mark.astro';
 import { SLOGAN } from '../lib/message.ts';
 
@@ -40,12 +40,17 @@ const NAVIGATION = [
 ];
 const current = (href: string) => Astro.url.pathname === href;
 const commit = built.commit.slice(0, 7);
+// "A, B and C", with each name linked to its maintainer's site.
+const maintainerParts = new Intl.ListFormat('en-GB').formatToParts(maintainers.map(({ name }) => name));
+const urlOf = (name: string) => maintainers.find((maintainer) => maintainer.name === name)?.url;
 ---
 
 <!doctype html>
 <html lang="en-GB">
 	<head>
 		<meta charset="utf-8" />
+		{/* Lets the stylesheet fold the navigation before the page is drawn; see src/scripts/menu.ts. */}
+		<script is:inline>document.documentElement.classList.add('js');</script>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="color-scheme" content="light dark" />
 		{/* The page colour of each scheme; scripts/contrast.mjs checks they match tokens.css. */}
@@ -82,7 +87,7 @@ const commit = built.commit.slice(0, 7);
 				</a>
 				<nav class="masthead__nav" aria-label="Site">
 					{/* Shown by src/scripts/menu.ts, which folds the list behind it on narrow screens. */}
-					<button class="masthead__toggle" type="button" aria-expanded="true" aria-controls="site-navigation" hidden>Menu</button>
+					<button class="masthead__toggle" type="button" aria-expanded="false" aria-controls="site-navigation" hidden>Menu</button>
 					<ul id="site-navigation">
 						{
 							NAVIGATION.map(({ label, href }) => (
@@ -113,7 +118,11 @@ const commit = built.commit.slice(0, 7);
 					</ul>
 				</nav>
 				<p>
-					Itinera, and this site, are free software, licensed under
+					Maintained by{' '}
+					{maintainerParts.map((part) => (part.type === 'element' ? <a href={urlOf(part.value)}>{part.value}</a> : part.value))}.
+				</p>
+				<p>
+					Itinera, and this site, are free software, licensed under{' '}
 					<a href={`${repository}/blob/main/LICENSE-APACHE`}>Apache 2.0</a> or <a href={`${repository}/blob/main/LICENSE-MIT`}>MIT</a>, at your
 					option.
 				</p>

@@ -101,27 +101,27 @@ A step knows nothing of the workflow around it, so the same step serves every wo
 
 ## One workflow, any executor
 
-A workflow does not know how it will be run. The executor decides that: everything in one process, step by step as tasks, one step per turn across machines with retries waiting on a message queue, or something else entirely. The steps, the policies and the reporters do not change. Executors differ in what they can do, never in what a workflow means.
+A workflow does not know how it will be run. The executor decides that: everything in one process, each step as a separate task, each step as a job on whichever machine is free with retries waiting on a message queue, or something else entirely. Steps always run in order, whoever runs them. The steps, the policies and the reporters do not change. Executors differ in what they can do, never in what a workflow means.
 
 ```mermaid
 flowchart LR
     accTitle: One workflow, many executors
-    accDescr: The same workflow, with its steps, policies and reporters unchanged, can be handed to different executors. The local executor, synchronous or asynchronous, is available today. An executor that runs each step as a task, one that runs one step per turn on any machine with retries queued on a message queue, and a durable executor that resumes a journey after a crash, are planned.
-    W[One workflow: its steps, policies and reporters, unchanged] --> L[Local executor, in one process, synchronous or asynchronous: available today]
-    W --> T[Task executor, each step a task: planned]
-    W --> D[Distributed executor, one step per turn on any machine, retries queued on a message queue: planned]
+    accDescr: The same workflow, with its steps, policies and reporters unchanged, can be handed to different executors. The local executor, synchronous or asynchronous, is the one specified today. An executor that runs each step as a separate task, in order, one that runs each step as its own job on whichever machine is free with retries queued on a message queue, and a durable executor that resumes a journey after a crash, are planned.
+    W[One workflow: its steps, policies and reporters, unchanged] --> L[Local executor, in one process, synchronous or asynchronous: specified today]
+    W --> T[Task executor, each step a separate task, in order: planned]
+    W --> D[Distributed executor, each step a job on whichever machine is free, retries queued on a message queue: planned]
     W --> P[Durable executor, resumes a journey after a crash: planned]
 ```
 
 What the diagram shows:
 
 1. One workflow, with its steps, policies and reporters, is handed to an executor, and nothing in it changes from one executor to another.
-2. The local executor runs a journey in one process, synchronously or asynchronously. It is available today.
-3. An executor that runs each step as a task is planned.
-4. An executor that runs one step per turn on whichever machine is free, with retries queued on a message queue, is planned.
+2. The local executor runs a journey in one process, synchronously or asynchronously. It is the one the specification defines today, and the one each language implements first.
+3. An executor that runs each step as a separate task, still in order, is planned.
+4. An executor that runs each step as its own job on whichever machine is free, with retries queued on a message queue, is planned.
 5. A durable executor, which resumes a journey after a crash, is planned.
 
-Today, Itinera has the local executor; the others are planned. That is already enough to build, test and even run in production, then move the same workflow to another executor when you need to, without rewriting it. And once process and logic are separated this way, whether a flow runs in one service or across many becomes the executor's choice, not something written into every step.
+Today, the specification defines the local executor, and the others are planned. Once your language's release is out, you can build, test and deploy on it with confidence, then hand the same workflow to another executor when you need to, without rewriting it. And once process and logic are separated this way, whether a flow runs in one process or across many machines, much of what microservices are built for, becomes the executor's choice, not something written into every step.
 
 ## Workflows that explain themselves
 

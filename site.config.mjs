@@ -18,6 +18,9 @@ export const repository = 'https://github.com/itinera-dev/itinera-dev.github.io'
 /** The organisation on GitHub. */
 export const organisation = 'https://github.com/itinera-dev';
 
+/** Who maintains Itinera, named in every page's footer and in llms.txt, each linked to their own site. */
+export const maintainers = [{ name: 'Marlon Sousa', url: 'https://marlon-sousa.com/' }];
+
 /**
  * The address the book is served under. The book is its own site, built and
  * published by itinera-dev/book, so the checks of this one never look inside it.

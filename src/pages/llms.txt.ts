@@ -3,7 +3,7 @@
 
 import type { APIRoute } from 'astro';
 
-import { book, facts, site } from '../../site.config.mjs';
+import { book, facts, maintainers, site } from '../../site.config.mjs';
 import { pages } from '../lib/content.ts';
 import { LANGUAGES } from '../lib/includes.ts';
 import { DESCRIPTION, MISSION, SLOGAN, VISION } from '../lib/message.ts';
@@ -21,6 +21,8 @@ export const GET: APIRoute = () => {
 		`Vision: ${VISION}`,
 		'',
 		`Mission: ${MISSION}`,
+		'',
+		`Maintained by ${new Intl.ListFormat('en-GB').format(maintainers.map(({ name, url }) => `[${name}](${url})`))}.`,
 		'',
 		'Code on this site is pseudo-Rust, an illustration. Real, compiled code is in the book, and what Itinera does is defined only by the specification.',
 		'',
