@@ -1,0 +1,21 @@
+---
+// Every page of content/ but the home page and the posts.
+
+import type { GetStaticPaths } from 'astro';
+
+import Base from '../layouts/Base.astro';
+import { pages, type Page } from '../lib/content.ts';
+import { render } from '../lib/render.ts';
+
+export const getStaticPaths = (() =>
+	pages()
+		.filter((page) => page.slug !== 'index')
+		.map((page) => ({ params: { page: page.slug }, props: { page } }))) satisfies GetStaticPaths;
+
+const { page } = Astro.props as { page: Page };
+const html = await render(page);
+---
+
+<Base title={page.title} description={page.description} markdownPath={page.markdownPath} image={`/og/${page.slug}.png`}>
+	<article class="prose" set:html={html} />
+</Base>

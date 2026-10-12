@@ -1,0 +1,19 @@
+---
+// The home page: the hero, then one section per level 2 heading of
+// content/index.md, the demonstration first.
+
+import Mark from '../components/Mark.astro';
+import Base from '../layouts/Base.astro';
+import { page } from '../lib/content.ts';
+import { render } from '../lib/render.ts';
+
+const home = page('index');
+const html = await render(home);
+---
+
+<Base description={home.description} markdownPath={home.markdownPath} image="/og/index.png" wide>
+	<div class="landing">
+		<p class="landing__name"><Mark class="landing__mark" /><span>Itinera</span></p>
+		<Fragment set:html={html} />
+	</div>
+</Base>

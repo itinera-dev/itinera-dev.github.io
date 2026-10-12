@@ -1,0 +1,15 @@
+---
+import { book } from '../../site.config.mjs';
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found" description="There is no page of the Itinera site at this address." notFound>
+	<div class="prose">
+		<h1>Page not found</h1>
+		<p>There is no page at this address. It may have moved, or the address may be mistyped.</p>
+		<ul>
+			<li><a href="/">The home page</a> says what Itinera is, and links to everything else.</li>
+			<li><a href={book}>The book</a> teaches Itinera in your programming language.</li>
+		</ul>
+	</div>
+</Base>

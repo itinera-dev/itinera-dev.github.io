@@ -1,0 +1,7 @@
+# Everything on this site is meant to be read, by people and by agents.
+# Agents may prefer /llms.txt, and the Markdown copy of every page.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://itinera-dev.github.io/sitemap-index.xml

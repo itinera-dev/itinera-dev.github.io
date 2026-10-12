@@ -1,0 +1,26 @@
+[
+	{
+		"id": "rust",
+		"name": "Rust",
+		"state": "preparing",
+		"version": "0.1.0-rc.1",
+		"tier": 1,
+		"executors": ["synchronous", "asynchronous"],
+		"package": "itinera",
+		"install": "cargo add itinera@0.1.0-rc.1",
+		"repository": "https://github.com/itinera-dev/itinera-rs",
+		"book": "/book/rust/",
+		"api": "https://docs.rs/itinera",
+		"manifest": "https://github.com/itinera-dev/itinera-rs/blob/main/conformance.json"
+	},
+	{
+		"id": "typescript",
+		"name": "TypeScript",
+		"state": "planned"
+	},
+	{
+		"id": "jvm",
+		"name": "The JVM (Kotlin, with support for Java)",
+		"state": "planned"
+	}
+]

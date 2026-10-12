@@ -1,0 +1,19 @@
+---
+// One page per post of content/news/.
+
+import type { GetStaticPaths } from 'astro';
+
+import Base from '../../layouts/Base.astro';
+import { posts, type Page } from '../../lib/content.ts';
+import { render } from '../../lib/render.ts';
+
+export const getStaticPaths = (() => posts().map((post) => ({ params: { post: post.slug }, props: { post } }))) satisfies GetStaticPaths;
+
+const { post } = Astro.props as { post: Page };
+const html = await render(post);
+---
+
+<Base title={post.title} description={post.description} markdownPath={post.markdownPath} image={`/og/news/${post.slug}.png`}>
+	<p class="eyebrow"><a href="/news/">News</a>, <time datetime={post.date}>{post.date}</time></p>
+	<article class="prose" set:html={html} />
+</Base>
