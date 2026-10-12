@@ -8,6 +8,7 @@
 		"executors": ["synchronous", "asynchronous"],
 		"package": "itinera",
 		"install": "cargo add itinera@0.1.0-rc.1",
+		"installNote": "adding `--features async` for the asynchronous executor",
 		"repository": "https://github.com/itinera-dev/itinera-rs",
 		"book": "/book/rust/",
 		"api": "https://docs.rs/itinera",

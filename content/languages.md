@@ -5,7 +5,7 @@ description: Every language Itinera is implemented in, what each release claims,
 
 # Languages
 
-Itinera has one specification and an implementation in each language. Every implementation claims a tier of the specification and a list of capabilities, and it may claim a tier only when every conformance case of that tier passes. What each one claims comes from its conformance manifest, never from this page alone.
+Itinera has one specification and an implementation in each language. Every implementation claims a tier of the specification and a list of capabilities, and it may claim a tier only when every conformance case of that tier, and of the tiers before it, passes. What each one claims comes from its conformance manifest, never from this page alone.
 
 <!-- include: languages-table -->
 

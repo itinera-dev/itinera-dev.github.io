@@ -143,14 +143,15 @@ const element = (tagName: string, properties: Element['properties'], children: E
 /**
  * Puts each code block in a figure with a caption saying what it is.
  *
- * Every Rust block on the site is pseudo-Rust: an illustration of the idea,
+ * The only code on the site is Rust, and every Rust block is pseudo-Rust: an illustration of the idea,
  * lighter than real code, which no compiler checked. Its caption says so, with
  * the amber marker the site keeps for what the reader cannot take as shown,
- * and links to the book, where every program is real and compiled. Runs
- * before the highlighter, which then colours the block inside the figure.
+ * and links to the book, where every program is real and compiled. A code
+ * block in any other language fails the build. Runs before the highlighter,
+ * which then colours the block inside the figure.
  */
 export function rehypeListings(options: { book: string }) {
-	return (tree: Root) => {
+	return (tree: Root, file: VFile) => {
 		let listings = 0;
 		visit(tree, 'element', (node, index, parent) => {
 			if (node.tagName !== 'pre' || !parent || index === undefined) return;
@@ -158,16 +159,18 @@ export function rehypeListings(options: { book: string }) {
 			if (!code || hasClass(code, 'language-mermaid')) return;
 			listings += 1;
 			const id = `listing-${listings}`;
-			const pseudo = hasClass(code, 'language-rust');
-			const caption: Element['children'] = pseudo
-				? [
-						element('span', { className: ['marker'] }, [{ type: 'text', value: 'Pseudo-Rust' }]),
-						{ type: 'text', value: ' An illustration, not a program. ' },
-						element('a', { href: options.book }, [{ type: 'text', value: 'Real, compiled code is in the book' }]),
-						{ type: 'text', value: '.' },
-					]
-				: [{ type: 'text', value: 'Example' }];
-			parent.children[index] = element('figure', { className: ['listing', ...(pseudo ? ['listing--pseudo'] : [])] }, [
+			if (!hasClass(code, 'language-rust')) {
+				throw new Error(
+					`content/${file.data.contentPath ?? 'a page'}, line ${node.position?.start.line ?? '?'}: a code block on the site is pseudo-Rust, fenced as \`rust\`, or a Mermaid diagram.`,
+				);
+			}
+			const caption: Element['children'] = [
+				element('span', { className: ['marker'] }, [{ type: 'text', value: 'Pseudo-Rust' }]),
+				{ type: 'text', value: ' An illustration, not a program. ' },
+				element('a', { href: options.book }, [{ type: 'text', value: 'Real, compiled code is in the book' }]),
+				{ type: 'text', value: '.' },
+			];
+			parent.children[index] = element('figure', { className: ['listing', 'listing--pseudo'] }, [
 				element('figcaption', { id, className: ['listing__caption'] }, caption),
 				node,
 			]);
@@ -204,9 +207,10 @@ function sectionsOf(children: Root['children'], level: number) {
 	for (const child of children) {
 		if (isHeading(child, level)) {
 			const id = typeof child.properties.id === 'string' ? child.properties.id : undefined;
-			sections.push(
-				element('section', { className: ['section', ...(id ? [`section--${id}`] : [])], ...(id ? { ariaLabelledBy: [id] } : {}) }, [child]),
-			);
+			// No accessible name: a named section is a landmark, and a dozen of
+			// them would crowd the landmarks a screen reader lists. The headings
+			// already let a reader move from section to section.
+			sections.push(element('section', { className: ['section', ...(id ? [`section--${id}`] : [])] }, [child]));
 		} else if (sections.length > 0 && child.type !== 'doctype') {
 			sections[sections.length - 1].children.push(child);
 		} else {

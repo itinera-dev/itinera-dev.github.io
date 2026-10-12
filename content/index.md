@@ -57,14 +57,14 @@ The workflow's declaration, four lines:
 
 The answer, read off those lines: authorise may be retried twice. Before each retry, the circuit breaker policy decides whether it is still worth trying. That is the whole answer, and it took four lines.
 
-The proof, from a journey where the bank timed out once:
+The proof: four of the events of a journey where the bank timed out once.
 
 | Event | Step and attempt | What it says | Decided by |
 |---|---|---|---|
-| `step_failed` | authorise, 1 | the bank timed out; it may be retried | |
-| `hook_called` | authorise, 1 | circuit breaker, on step retry: carry on | |
-| `step_retrying` | authorise, 1 | try again after a retriable failure | default |
-| `step_succeeded` | authorise, 2 | | |
+| `step_failed` | `authorise`, 1 | the bank timed out; it may be retried | |
+| `hook_called` | `authorise`, 1 | circuit breaker, on step retry: no lifecycle, the default stands | |
+| `step_retrying` | `authorise`, 1 | try again after a retriable failure | default |
+| `step_succeeded` | `authorise`, 2 | | |
 
 Nobody wrote a log line. Every Itinera journey reports this.
 
@@ -93,7 +93,7 @@ So separating process from logic is no longer a matter of taste. It is a matter 
 
 ## The easy way is the isolated way
 
-Isolation is still a discipline: no language can stop a determined developer from reaching outside a step. Itinera makes the disciplined path the shortest one. A step asks for what it needs and is handed it: its inputs by key, the services it uses by key and type, and a place to put what it produces. Asking is one attribute on a field or a parameter; going to get the same thing yourself is more code, and it stands out in review. People and agents alike take the shortest path, so the shortest path is the isolated one.
+Isolation is still a discipline: no language can stop a determined developer from reaching outside a step. Itinera makes the disciplined path the shortest one. A step asks for what it needs and is handed it: its inputs by key, the services it uses by key and type, and a place to put what it produces. In Rust, asking is one attribute on a field or a parameter; going to get the same thing yourself is more code, and it stands out in review. People and agents alike take the shortest path, so the shortest path is the isolated one.
 
 ## Workflows that explain themselves
 
@@ -101,8 +101,8 @@ Itinera standardises how flows work, so anyone can understand a flow without ope
 
 1. **Decisions are declarative.** A step's retry budget, its rescue step, its policies, where its inputs come from and which providers supply its services are declared in the workflow, not coded in the steps.
 2. **The declaration can be listed without running anything.** Every workflow can list its steps in order, their policies, input adapters, services and rescue steps.
-3. **Mistakes are refused before any journey.** A workflow put together wrongly is refused when it is built, with every violation listed, before anything runs.
-4. **Reporting is guaranteed.** Every executor reports the same stream of events, with every decision and who made it. Nobody has to decide to log, and nobody can forget to.
+3. **Mistakes are refused before any journey.** A workflow put together wrongly is refused when it is built or handed to the executor, with every violation listed, before any journey starts.
+4. **Reporting is guaranteed.** Every executor produces the same stream of events, with every decision and who made it. Nobody has to decide to log, or remember to emit an event.
 5. **Everything is decoupled.** Steps know nothing of the workflow running them, reporters know only events, and a step never knows which implementation of a service it was given.
 
 ## Languages
@@ -119,7 +119,7 @@ The [specification](/specification/) defines what a workflow means, in terms any
 
 - Itinera is not a general job queue or message bus.
 - Itinera is not a visual process language such as BPMN, although its workflows can be drawn from their definitions.
-- Itinera does not offer branching inside a workflow. Branching is moving between workflows.
+- Itinera does not offer branching inside a workflow. Branching is moving between workflows, which comes with tier 2 and is planned.
 
 ## Built in the open, with AI
 

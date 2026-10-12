@@ -14,6 +14,7 @@ The site owns Itinera's message, brand and design. The book takes its colours an
 - `site.config.mjs` holds the facts a page names as `{{name}}`, such as the specification's version and the git refs links point at. `src/data/languages.json` holds each language's version, tier and links. Pages include tables made from them as `<!-- include: name -->`; `src/lib/includes.ts` lists what can be included.
 - `src/lib/message.ts` holds the slogan, the vision and the mission. `src/lib/logo.mjs` draws every form of the logo. `src/styles/tokens.css` holds the colours.
 - `src/lib/render.ts` turns a page's Markdown into HTML; `src/pages/` makes the pages, the Markdown copies, `/llms.txt`, the news feed, the sharing images and the icons.
+- `src/data/linked.json` lists the book's pages and the specification's files, so the link check can verify links into them. Refresh it when either moves.
 - `scripts/` holds the checks that `npm run verify` runs.
 
 ## Rules the site keeps

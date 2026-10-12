@@ -20,11 +20,11 @@ Every page is a Markdown file in `content/`. [AGENTS.md](AGENTS.md) says where e
 1. `npm run check`: Astro's type check.
 2. `npm run contrast`: every pair of colours the pages use, read from `src/styles/tokens.css`, against WCAG AA in the light and the dark scheme.
 3. `npm run build:strict`: a forced build, ignoring every cache, that also fails when the build printed an error.
-4. `npm run pages`: that every page of `content/` was built with its Markdown copy and sharing image, that each has one level 1 heading and a body, and that every link within the site leads to something that was built.
+4. `npm run pages`: that every page of `content/` was built with its Markdown copy and sharing image, that each has one level 1 heading and a body, that every link within the site leads to something that was built, and that every link into the book or the specification names a page or file listed in `src/data/linked.json`.
 5. `npm run a11y`: axe on every page, in both colour schemes, once its diagrams are drawn.
 6. `npm run layout`: every page at 360, 390, 768 and 1280 pixels wide, checking that nothing scrolls sideways except code, tables and diagrams, inside their own box.
 
-The last two open the pages in Playwright's Chromium, installed once per machine with `npx playwright install chromium`.
+The last two open the pages in Playwright's Chromium, installed once per machine with `npm run browsers`.
 
 ## License
 

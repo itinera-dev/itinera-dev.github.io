@@ -45,7 +45,7 @@ export const GET: APIRoute = () => {
 		'## Languages',
 		'',
 		...released.map((language) =>
-			link(language.name, language.repository ?? '', `The ${language.name} implementation. API reference: ${language.api}, once published.`),
+			link(language.name, language.repository ?? '', `The ${language.name} implementation. API reference: ${language.api}${language.state === 'released' ? '' : ', once published'}.`),
 		),
 		...LANGUAGES.filter((language) => language.state === 'planned').map((language) => `- ${language.name}: planned.`),
 		'',

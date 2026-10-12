@@ -6,6 +6,7 @@ import languages from '../data/languages.json';
 import { BRAND_FILES } from './brand.ts';
 import { AA_NON_TEXT, AA_TEXT, ratio, schemes } from './colour.mjs';
 import { posts } from './content.ts';
+import { DESCRIPTION } from './logo.mjs';
 import { MISSION, VISION } from './message.ts';
 
 export interface Language {
@@ -19,6 +20,8 @@ export interface Language {
 	executors?: string[];
 	package?: string;
 	install?: string;
+	/** What else installing needs to say, such as how to get every capability. */
+	installNote?: string;
 	repository?: string;
 	book?: string;
 	api?: string;
@@ -64,9 +67,9 @@ function languagesDetails(): string {
 					? `${language.name} ${language.version} claims tier ${language.tier}, with ${capabilities(language)}.`
 					: `${language.name} ${language.version} is in preparation, and not on its package registry yet. It will claim tier ${language.tier}, with ${capabilities(language)}.`,
 				'',
-				`- **Install,** once it is published: \`${language.install}\`.`,
+				`- **Install,** ${published ? '' : 'once it is published, '}with \`${language.install}\`${language.installNote ? `, ${language.installNote}` : ''}.`,
 				`- **The book:** [the ${language.name} edition](${language.book}), starting at [Quick start](${language.book}quick-start/).`,
-				`- **API reference:** [${language.api?.replace(/^https:\/\//, '')}](${language.api}), once the package is published.`,
+				`- **API reference:** [${language.api?.replace(/^https:\/\//, '')}](${language.api})${published ? '' : ', once the package is published'}.`,
 				`- **Source:** [${language.repository?.replace(/^https:\/\/github\.com\//, '')}](${language.repository}).`,
 				`- **What it claims:** its [conformance manifest](${language.manifest}) lists every proposal it implements and the conformance cases it runs. ${
 					published ? 'Its release carries the conformance report that proves it.' : 'Its first release will carry the conformance report that proves it.'
@@ -85,6 +88,16 @@ function status(): string {
 			: `Latest release: ${language.name} ${language.version}, tier ${language.tier}.`,
 	);
 	return `**Status:** ${lines.join(' ')}`;
+}
+
+/** Who implements tier 1, and where each stands, as a sentence. */
+function implementations(): string {
+	const parts = LANGUAGES.filter((language) => language.state !== 'planned').map((language) =>
+		language.state === 'preparing'
+			? `${language.name} ${language.version} implements it, and is in preparation`
+			: `${language.name} ${language.version} implements it`,
+	);
+	return parts.length === 0 ? 'No language implements it yet.' : `${list(parts)}.`;
 }
 
 /** The posts, newest first, or a sentence saying there are none yet. */
@@ -128,6 +141,8 @@ export const includes: Record<string, () => string> = {
 	'languages-table': languagesTable,
 	'languages-details': languagesDetails,
 	status,
+	implementations,
+	'logo-description': () => DESCRIPTION,
 	'news-list': newsList,
 	'brand-colours': brandColours,
 	'brand-files': () => BRAND_FILES.map((file) => `- [${file.name}.svg](/brand/${file.name}.svg): ${file.label}.`).join('\n'),

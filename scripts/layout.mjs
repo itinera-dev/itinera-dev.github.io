@@ -21,7 +21,7 @@ function measure() {
 	return { viewport, scrollWidth: root.scrollWidth, mainLeft: main?.left ?? 0, mainRight: main?.right ?? 0, wide };
 }
 
-const pages = await findPages();
+const pages = [...(await findPages()), '/404.html'];
 const { origin, close } = await serve();
 const browser = await chromium.launch();
 const problems = [];

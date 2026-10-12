@@ -8,7 +8,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { book, contentDirectory, site } from '../site.config.mjs';
+import { book, contentDirectory, facts, site } from '../site.config.mjs';
 import { DIST, fileFor, findPages } from './serve.mjs';
 
 const problems = [];
@@ -37,9 +37,26 @@ for (const file of files) {
 	if (!existsSync(fileFor(file))) problems.push(`${file} was not built.`);
 }
 
-// The book is published by itinera-dev/book, under /book/, so a link into it
-// cannot be checked from this build.
+// The book is published by itinera-dev/book, under /book/, and the
+// specification lives on GitHub, so neither is in this build. Links into them
+// are checked against src/data/linked.json, which lists their pages and files.
+const linked = JSON.parse(readFileSync(new URL('../src/data/linked.json', import.meta.url), 'utf8'));
+const bookPages = new Set(linked.book.pages);
+const specFiles = new Set(linked.spec.files);
 const inTheBook = (path) => path.startsWith(book);
+const specPrefix = `${facts.spec}/blob/${facts['spec-ref']}/`;
+
+/** Checks a link into the specification, found on `page`. */
+function checkSpecLink(page, url) {
+	if (!url.startsWith(`${facts.spec}/blob/`)) return;
+	links += 1;
+	if (!url.startsWith(specPrefix)) {
+		problems.push(`${page} links to ${url}, not at the specification's ref {{spec-ref}}.`);
+		return;
+	}
+	const file = url.slice(specPrefix.length).split('#')[0];
+	if (!specFiles.has(file)) problems.push(`${page} links to ${file} of the specification, which src/data/linked.json does not list.`);
+}
 
 const ids = new Map();
 const idsOf = (file) => {
@@ -60,7 +77,10 @@ function checkLink(page, file, url) {
 		if (!idsOf(file).has(fragment)) problems.push(`${page} links to #${fragment}, which is not on the page.`);
 		return;
 	}
-	if (inTheBook(path)) return;
+	if (inTheBook(path)) {
+		if (!bookPages.has(path)) problems.push(`${page} links to ${url}, which src/data/linked.json does not list as a page of the book.`);
+		return;
+	}
 	const target = fileFor(path);
 	if (!existsSync(target)) {
 		problems.push(`${page} links to ${url}, which was not built.`);
@@ -86,7 +106,10 @@ for (const { page, file } of htmlPages) {
 			checkLink(page, file, url.slice(site.length));
 			continue;
 		}
-		if (/^[a-z][a-z0-9+.-]*:/i.test(url)) continue;
+		if (/^[a-z][a-z0-9+.-]*:/i.test(url)) {
+			checkSpecLink(page, url);
+			continue;
+		}
 		if (!url.startsWith('/') && !url.startsWith('#')) {
 			problems.push(`${page} has the relative ${attribute} "${url}"; links on the site are absolute.`);
 			continue;
@@ -109,6 +132,7 @@ for (const text of textFiles) {
 	for (const [, url] of content.matchAll(/\]\((https:\/\/itinera-dev\.github\.io[^)\s]*)\)/g)) {
 		checkLink(text, fileFor(text), url.slice(site.length));
 	}
+	for (const [, url] of content.matchAll(/\]\((https:\/\/github\.com[^)\s]*)\)/g)) checkSpecLink(text, url);
 }
 
 if (problems.length > 0) {
@@ -117,5 +141,5 @@ if (problems.length > 0) {
 	process.exit(1);
 }
 console.log(
-	`\nAll ${expected.length} expected pages were built, each with its Markdown copy and sharing image; each has one h1 and a body, and all ${links} links within the site resolve.`,
+	`\nAll ${expected.length} expected pages were built, each with its Markdown copy and sharing image; each has one h1 and a body, and all ${links} links within the site, into the book and into the specification resolve.`,
 );

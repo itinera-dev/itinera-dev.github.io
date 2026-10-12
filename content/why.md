@@ -93,7 +93,7 @@ Here is where each piece of the story lands:
 | The A/B test hidden in the injection setup | The gateway a step uses is supplied by a service provider declared in the workflow, for the whole journey or for each attempt, so which variant a journey gets is read in the workflow. Moving a journey to a whole other workflow is tier 2, and planned. |
 | The retry system in the service layer | A retry budget on the step, and the decision about each retry in a policy attached in the workflow. Metrics come from the event stream. |
 | The other retry, with back off, in another repository | The same place: the step's retry budget and its policies, or a rescue step that fixes the cause before the step runs again. Waiting between attempts, back off, is planned. |
-| The circuit breaker beside the HTTP client | A policy attached in the workflow, reading the breaker's state through a role the workflow provides. Its decisions appear in the event stream, with who made them. |
+| The circuit breaker beside the HTTP client | A policy attached in the workflow, asking the breaker whether it is open, through a role the workflow provides. Its decisions appear in the event stream, with who made them. |
 | Nobody decided to log | Every executor reports the standard event stream; reporters choose where it goes. |
 | Reading everything to know one route | Reading one workflow: its steps in order, its policies and its providers. |
 
@@ -122,14 +122,14 @@ fn charge(#[Input] amount: Money, #[Service] gateway: &Gateway) -> Outcome {
 }
 ```
 
-The circuit breaker is a policy, which decides whether a retry is still worth it:
+The circuit breaker is a policy. Before each retry, its hook either ends the journey as failed or returns nothing, which lets the retry go ahead:
 
 ```rust
 #[StepPolicy]
 impl CircuitBreaker {
     #[OnStepRetry]
-    fn still_worth_it(#[Role] breaker: &Breaker) -> Decision {
-        if breaker.is_open() { fail_workflow("the bank is down") } else { carry_on() }
+    fn still_worth_it(#[Role] breaker: &Breaker) -> Option<Lifecycle> {
+        if breaker.is_open() { Some(FailWorkflow("the bank is down")) } else { None }
     }
 }
 ```
@@ -159,24 +159,24 @@ The events of one journey, simplified: contributions and some fields are left ou
 | Number | Event | Step and attempt | What it says | Decided by |
 |---|---|---|---|---|
 | 1 | `journey_started` | | payment `pay-1042` starts with `order` and `amount` | |
-| 2 | `attempt_started` | authorise, 1 | | |
-| 3 | `step_failed` | authorise, 1 | the bank timed out; it may be retried | |
-| 4 | `hook_called` | authorise, 1 | circuit breaker, on step retry: carry on | |
-| 5 | `step_retrying` | authorise, 1 | try again after a retriable failure | default |
-| 6 | `attempt_started` | authorise, 2 | | |
-| 7 | `step_succeeded` | authorise, 2 | | |
-| 8 | `attempt_started` | charge, 1 | | |
-| 9 | `journey_info` | charge, 1 | from the A/B test provider: this journey is in group B | |
-| 10 | `service_provided` | charge, 1 | the gateway, by the A/B test provider | |
-| 11 | `step_failed` | charge, 1 | the card has expired | |
-| 12 | `step_rescuing` | charge, 1 | rescue with `charge_rescue` | default |
-| 13 | `attempt_started` | charge_rescue, 1 | | |
-| 14 | `step_succeeded` | charge_rescue, 1 | the card was refreshed | |
-| 15 | `step_rescued` | charge, 1 | charge runs again | default |
-| 16 | `attempt_started` | charge, 2 | | |
-| 17 | `step_succeeded` | charge, 2 | | |
-| 18 | `attempt_started` | send receipt, 1 | | |
-| 19 | `step_succeeded` | send receipt, 1 | | |
+| 2 | `attempt_started` | `authorise`, 1 | | |
+| 3 | `step_failed` | `authorise`, 1 | the bank timed out; it may be retried | |
+| 4 | `hook_called` | `authorise`, 1 | circuit breaker, on step retry: no lifecycle, the default stands | |
+| 5 | `step_retrying` | `authorise`, 1 | try again after a retriable failure | default |
+| 6 | `attempt_started` | `authorise`, 2 | | |
+| 7 | `step_succeeded` | `authorise`, 2 | | |
+| 8 | `attempt_started` | `charge`, 1 | | |
+| 9 | `journey_info` | `charge`, 1 | from the A/B test provider: this journey is in group B | |
+| 10 | `service_provided` | `charge`, 1 | the gateway, by the A/B test provider | |
+| 11 | `step_failed` | `charge`, 1 | the card has expired | |
+| 12 | `step_rescuing` | `charge`, 1 | rescue with `charge_rescue` | default |
+| 13 | `attempt_started` | `charge_rescue`, 1 | | |
+| 14 | `step_succeeded` | `charge_rescue`, 1 | the card was refreshed | |
+| 15 | `step_rescued` | `charge`, 1 | `charge` runs again | default |
+| 16 | `attempt_started` | `charge`, 2 | | |
+| 17 | `step_succeeded` | `charge`, 2 | | |
+| 18 | `attempt_started` | `send_receipt`, 1 | | |
+| 19 | `step_succeeded` | `send_receipt`, 1 | | |
 | 20 | `hook_called` | | notify customer, on workflow success | |
 | 21 | `journey_succeeded` | | the payment went through | default |
 
@@ -192,8 +192,8 @@ Isolation is still a discipline: nothing in any language can stop a determined d
 
 1. **Decisions are declarative.** How many times a step may be retried (its retry budget), whether an abnormal termination may be retried, its rescue step, the policies attached to it, where its inputs come from (its input adapter) and which service providers serve it, for one attempt or the whole journey: all are declared in the workflow, not coded in the steps. There is no workflow-wide default for a retry budget; each step states its own, so the declaration shows everything.
 2. **The declaration can be listed without running anything.** The specification requires every workflow to be listable: each step's name and position, its policies in order, its input adapter, the services it requests and the provider serving each, and its rescue step. A workflow literally explains itself.
-3. **Mistakes are refused before any journey.** A workflow put together wrongly is refused when it is built, listing every violation, before anything runs. In Rust, several mistakes cannot even be written: they are compile errors.
-4. **Reporting is guaranteed.** Every executor reports the same event stream, with every decision and who made it. Nobody has to decide to log, and nobody can forget to.
+3. **Mistakes are refused before any journey.** A workflow put together wrongly is refused before any journey, when it is built or handed to the executor, listing every violation. In Rust, several mistakes cannot even be written: they are compile errors.
+4. **Reporting is guaranteed.** Every executor produces the same event stream, with every decision and who made it. Nobody has to decide to log, or remember to emit an event.
 5. **Everything is decoupled.** Steps know nothing of the workflow running them. Reporters know nothing of steps or workflows; they receive events. Services are supplied to steps by the workflow's providers, so a step never knows which implementation it was given. Policies get operations through roles, never data they could hide.
 
 Together, these mean anyone can understand a flow without opening a single step: the steps hold the business rules, and everything about the flow is in the declaration and its policies.
@@ -217,11 +217,11 @@ The book walks through it with a worked example, in [From tangled code to a work
 
 ## What is there today
 
-Itinera's first tier, a single workflow, is specified, and its Rust implementation is being prepared for its first release; [Languages](/languages/) says exactly where it stands. Some parts of the story above are planned, not there yet:
+Itinera's first tier, a single workflow, is specified. <!-- include: implementations --> [Languages](/languages/) says exactly where each language stands. Some parts of the story above are planned, not there yet:
 
 - **Back off**, waiting between attempts, is planned.
 - **Moving a journey to another workflow**, such as an A/B test between whole flows, is tier 2, and planned.
-- **Durable runs**, flows that survive a crash and span services, come in a later tier.
+- **Durable runs**, journeys that can resume after a crash, come in a later tier.
 
 The [roadmap](/roadmap/) has the order.
 
