@@ -95,9 +95,39 @@ So separating process from logic is no longer a matter of taste. It is a matter 
 
 Isolation is still a discipline: no language can stop a determined developer from reaching outside a step. Itinera makes the disciplined path the shortest one. A step asks for what it needs and is handed it: its inputs by key, the services it uses by key and type, and a place to put what it produces. In Rust, asking is one attribute on a field or a parameter; going to get the same thing yourself is more code, and it stands out in review. People and agents alike take the shortest path, so the shortest path is the isolated one.
 
-## Write it once, use it everywhere
+## Write a step once, plug it in anywhere
 
-A step knows nothing of the workflow around it, so the same step serves every workflow that needs it: the step that charges a card runs in the checkout, in the subscription renewal and in the one-click reorder, unchanged. Policies travel the same way: a circuit breaker written once can be attached to every step that calls the bank, in every workflow. Each workflow still declares its own retry budgets, rescue steps and policies, so reusing a step never means inheriting someone else's flow.
+A step knows nothing of the workflow around it, so it plugs into any workflow that needs it, unchanged. A new flow is composed from the steps you already have, and only what is new gets written.
+
+A national and an international payment, for example, share their onboarding, authorisation, charge and receipt. The international one adds two steps of its own:
+
+```mermaid
+flowchart LR
+    accTitle: Two payment workflows built from the same steps
+    accDescr: Six steps are written once. Onboard, authorise, charge and send receipt are plugged into both workflows; screen sanctions and convert currency only into the international payment. The national payment runs onboard, authorise with up to 2 retries, charge and send receipt. The international payment runs onboard, screen sanctions, convert currency, authorise with up to 4 retries, charge and send receipt.
+    O[Onboard] --> NP
+    A[Authorise] --> NP
+    C[Charge] --> NP
+    R[Send receipt] --> NP
+    O --> IP
+    A --> IP
+    C --> IP
+    R --> IP
+    X[Screen sanctions] --> IP
+    V[Convert currency] --> IP
+    NP[National payment: onboard, authorise with up to 2 retries, charge, send receipt]
+    IP[International payment: onboard, screen sanctions, convert currency, authorise with up to 4 retries, charge, send receipt]
+```
+
+What the diagram shows:
+
+1. Six steps are written once: onboard, authorise, charge, send receipt, screen sanctions and convert currency.
+2. Onboard, authorise, charge and send receipt are plugged into both workflows, unchanged.
+3. Screen sanctions and convert currency are plugged into the international payment only.
+4. The national payment runs onboard, authorise, charge and send receipt, and allows authorise up to two retries.
+5. The international payment runs onboard, screen sanctions, convert currency, authorise, charge and send receipt, and allows authorise up to four retries.
+
+Policies plug in the same way: the circuit breaker is written once and attached to authorise in both workflows. Each workflow declares its own retry budgets, rescue steps and policies, so reusing a step never means inheriting someone else's flow. When a workflow keeps its data under different keys, an input adapter in that workflow hands the step what it asks for, and the step still does not change.
 
 ## One workflow, any executor
 
