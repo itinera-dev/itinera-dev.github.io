@@ -2,7 +2,7 @@ name: Pages
 
 # Builds the site and runs its verify gate on every pull request. On main, the
 # site that passed the gate is published to GitHub Pages, at
-# https://itinera-dev.github.io/.
+# https://itinera-dev.org/.
 
 on:
   pull_request:

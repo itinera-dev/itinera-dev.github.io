@@ -1,6 +1,6 @@
 # itinera-dev.github.io
 
-Itinera's site: separate process from logic, make agentic code safer. It is published at <https://itinera-dev.github.io/>.
+Itinera's site: separate process from logic, make agentic code safer. It is published at <https://itinera-dev.org/>.
 
 ## Reading it locally
 

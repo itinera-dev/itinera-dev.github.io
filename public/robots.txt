@@ -4,4 +4,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://itinera-dev.github.io/sitemap-index.xml
+Sitemap: https://itinera-dev.org/sitemap-index.xml

@@ -52,7 +52,7 @@ export async function sharingImage(title: string): Promise<Uint8Array<ArrayBuffe
 				box({ flexDirection: 'column', gap: '28px', flex: 1 }, [
 					box({ fontSize: '40px', fontWeight: 700, color: light.accent }, 'Itinera'),
 					box({ fontSize: heading.length > 40 ? '64px' : '80px', fontWeight: 700, lineHeight: 1.1, color: light.ink }, heading),
-					box({ fontSize: '30px', color: light['ink-muted'] }, heading === SLOGAN ? 'itinera-dev.github.io' : SLOGAN),
+					box({ fontSize: '30px', color: light['ink-muted'] }, heading === SLOGAN ? 'itinera-dev.org' : SLOGAN),
 				]),
 			],
 		) as Parameters<typeof satori>[0],

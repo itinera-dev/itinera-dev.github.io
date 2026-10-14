@@ -10,7 +10,7 @@ import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
 /** The site's origin. GitHub serves this repository at the root of it. */
-export const site = 'https://itinera-dev.github.io';
+export const site = 'https://itinera-dev.org';
 
 /** This repository on GitHub. */
 export const repository = 'https://github.com/itinera-dev/itinera-dev.github.io';
