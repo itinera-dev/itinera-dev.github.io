@@ -4,7 +4,7 @@ The operating manual for anyone, human or agent, working in this repository. It 
 
 ## What this repository is
 
-Itinera's site, published at <https://itinera-dev.github.io/>. It tells Itinera's story and sends each visitor to the right place next: the book teaches, the specification defines, and the site tells the story and links. The book is a site of its own, [itinera-dev/book](https://github.com/itinera-dev/book), served under `/book/`.
+Itinera's site, published at <https://itinera-dev.org/>. It tells Itinera's story and sends each visitor to the right place next: the book teaches, the specification defines, and the site tells the story and links. The book is a site of its own, [itinera-dev/book](https://github.com/itinera-dev/book), served under `/book/`.
 
 The site owns Itinera's message, brand and design. The book takes its colours and framing from here, never the other way round.
 

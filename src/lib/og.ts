@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { Resvg } from '@resvg/resvg-js';
 import satori from 'satori';
 
+import { site } from '../../site.config.mjs';
 import { schemes } from './colour.mjs';
 import { markSvg } from './logo.mjs';
 import { SLOGAN } from './message.ts';
@@ -52,7 +53,7 @@ export async function sharingImage(title: string): Promise<Uint8Array<ArrayBuffe
 				box({ flexDirection: 'column', gap: '28px', flex: 1 }, [
 					box({ fontSize: '40px', fontWeight: 700, color: light.accent }, 'Itinera'),
 					box({ fontSize: heading.length > 40 ? '64px' : '80px', fontWeight: 700, lineHeight: 1.1, color: light.ink }, heading),
-					box({ fontSize: '30px', color: light['ink-muted'] }, heading === SLOGAN ? 'itinera-dev.github.io' : SLOGAN),
+					box({ fontSize: '30px', color: light['ink-muted'] }, heading === SLOGAN ? new URL(site).host : SLOGAN),
 				]),
 			],
 		) as Parameters<typeof satori>[0],
