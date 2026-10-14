@@ -73,7 +73,7 @@ Nobody wrote a log line. Every Itinera journey reports this.
 Your team and your agents can read every flow this way.
 
 - [See the whole case](/why/), from the system as it grew to the same system with Itinera.
-- [Try it in the book](/book/rust/quick-start/), with a workflow you run yourself.
+- [Get started](/book/rust/02-the-big-picture/) in the book: the big picture first, then a workflow you run yourself.
 
 ## Vision
 
@@ -185,7 +185,7 @@ Itinera is itself built mostly by agents, under the process it describes: a spec
 
 ## Where to go next
 
-1. [The book](/book/), one edition per language, starting at [Quick start](/book/rust/quick-start/).
+1. [The book](/book/), one edition per language, starting at [Get started](/book/rust/02-the-big-picture/).
 2. [Why Itinera](/why/): the full story, with a payment system as the case.
 3. [The specification]({{spec}}/blob/{{spec-ref}}/spec/README.md) and [VISION.md]({{spec}}/blob/{{spec-ref}}/VISION.md), why Itinera exists.
 4. [The conformance suite]({{conformance}}/tree/{{conformance-ref}}) and [what each language claims](/languages/).

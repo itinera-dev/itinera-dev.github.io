@@ -5,3 +5,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://itinera-dev.org/sitemap-index.xml
+Sitemap: https://itinera-dev.org/book/sitemap-index.xml

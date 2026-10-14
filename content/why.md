@@ -299,7 +299,7 @@ You do not rewrite a system to adopt Itinera. Take one route at a time:
 3. Move their retries, fallbacks and breakers out of the code and into the workflow: retry budgets on the steps, decisions in policies, repairs in rescue steps.
 4. Point a reporter at the event stream, and read what the route actually does.
 
-The book walks through it with a worked example, in [From tangled code to a workflow](/book/rust/26-from-tangled-code-to-a-workflow/).
+The book walks through it with a worked example, in [Bringing Itinera into existing code](/book/rust/41-bringing-itinera-into-existing-code/).
 
 ## What is there today
 
@@ -314,5 +314,5 @@ The [roadmap](/roadmap/) has the order.
 
 ## Next
 
-- [Quick start](/book/rust/quick-start/), in the book: a workflow you run yourself.
+- [Get started](/book/rust/02-the-big-picture/), in the book: the big picture first, then a workflow you run yourself.
 - [Languages](/languages/): what you can install today.

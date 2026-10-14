@@ -70,7 +70,7 @@ function languagesDetails(): string {
 					: `${language.name} ${language.version} is in preparation, and not on its package registry yet. It will claim tier ${language.tier}, with ${capabilities(language)}.`,
 				'',
 				`- **Install,** ${published ? '' : 'once it is published, '}with \`${language.install}\`${language.installNote ? `, ${language.installNote}` : ''}.`,
-				`- **The book:** [the ${language.name} edition](${language.book}), starting at [Quick start](${language.book}quick-start/).`,
+				`- **The book:** [the ${language.name} edition](${language.book}), starting at [Get started](${language.book}02-the-big-picture/).`,
 				`- **API reference:** [${language.api?.replace(/^https:\/\//, '')}](${language.api})${published ? '' : ', once the package is published'}.`,
 				`- **Source:** [${language.repository?.replace(/^https:\/\/github\.com\//, '')}](${language.repository}).`,
 				...(language.architecture
