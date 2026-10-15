@@ -41,7 +41,7 @@ export const contentDirectory = resolve(process.cwd(), 'content');
 export const facts = {
 	'spec-version': '0.1.0',
 	'spec-ref': 'main',
-	'conformance-ref': 'v0.1.0-rc.11',
+	'conformance-ref': 'v0.1.0-rc.15',
 	spec: 'https://github.com/itinera-dev/spec',
 	conformance: 'https://github.com/itinera-dev/conformance',
 	actions: 'https://github.com/itinera-dev/actions',

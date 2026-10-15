@@ -138,7 +138,7 @@ impl Charge {
     fn run(
         self,
         #[service] gateway: &dyn Gateway,
-        #[contributor] mut contributor: Contributor<'_>,
+        contributor: &mut Contributor,
     ) -> Result<Outcome, Error> {
         match gateway.take(&self.card, self.amount) {
             Ok(receipt) => {
@@ -151,17 +151,17 @@ impl Charge {
 }
 ```
 
-The circuit breaker is a policy. Before each retry, its hook either ends the journey as failed or carries on, which lets the retry go ahead:
+The circuit breaker is a policy. Before each retry, its hook either ends the journey as failed or keeps the default, which lets the retry go ahead:
 
 ```rust
 #[step_policy(name = "circuit_breaker")]
 impl CircuitBreaker {
     #[on_step_retry]
-    fn still_worth_it(&self, #[role] breaker: &dyn Breaker) -> Result<Option<FailWorkflow>, Error> {
+    fn still_worth_it(&self, #[role] breaker: &dyn Breaker) -> Result<OnFailure, Error> {
         if breaker.is_open() {
             return Self::fail_workflow("the-bank-is-down");
         }
-        Self::carry_on()
+        Self::keep_default()
     }
 }
 ```
@@ -296,7 +296,7 @@ impl InternationalPayment {
         &self,
         #[key] key: &str,
         #[from_workflow] converted: i64,
-    ) -> Result<Option<AnyValue>, Error> {
+    ) -> Result<Supplied, Error> {
         if key != "amount" {
             return Self::from_data_bag();
         }

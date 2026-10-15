@@ -109,7 +109,7 @@ function implementations(): string {
 function newsList(): string {
 	const all = posts();
 	if (all.length === 0) {
-		return 'Nothing has been announced yet. The first post will be the first published release.';
+		return 'Nothing has been announced yet.';
 	}
 	return all.map((post) => `- ${post.date}: [${post.title}](${post.path}). ${post.description}`).join('\n');
 }
