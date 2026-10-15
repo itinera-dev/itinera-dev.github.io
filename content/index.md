@@ -49,10 +49,10 @@ The answer, as a reader has to find it: open the injection setup to learn which 
 The workflow's declaration, four lines:
 
 ```rust
-#[Workflow(name = "payment", policies = [NotifyCustomer])]
-#[Step(Authorise, retry_budget = 2, policies = [CircuitBreaker])]
-#[Step(Charge, rescue = RefreshCard)]
-#[Step(SendReceipt)]
+#[workflow(name = "payment", policies = [NotifyCustomer])]
+#[with_step(Authorise, name = "authorise", retry_budget = 2, policies = [CircuitBreaker])]
+#[with_step(Charge, name = "charge", rescue = RefreshCard)]
+#[with_step(SendReceipt, name = "send_receipt")]
 ```
 
 The answer, read off those lines: authorise may be retried twice. Before each retry, the circuit breaker policy decides whether it is still worth trying. That is the whole answer, and it took four lines.

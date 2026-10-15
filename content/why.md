@@ -102,34 +102,66 @@ Here is where each piece of the story lands:
 The payment, as a workflow. The declaration says everything about the flow:
 
 ```rust
-#[Workflow(name = "payment", policies = [NotifyCustomer])]
-#[Step(Authorise, retry_budget = 2, policies = [CircuitBreaker])]
-#[Step(Charge, rescue = RefreshCard)]
-#[Step(SendReceipt)]
+#[workflow(name = "payment", policies = [NotifyCustomer])]
+#[with_step(Authorise, name = "authorise", retry_budget = 2, policies = [CircuitBreaker])]
+#[with_step(Charge, name = "charge", rescue = RefreshCard)]
+#[with_step(SendReceipt, name = "send_receipt")]
 struct Payment;
 
-// The A/B test: which gateway this journey uses, chosen once for the whole journey.
-#[Provider(per_journey, steps = [Charge])]
-fn ab_test(journey) -> Gateway { /* gateway A or gateway B */ }
+#[workflow]
+impl Payment {
+    /// The A/B test: which gateway this journey uses, chosen once for the whole journey.
+    #[provider(key = "gateway")]
+    fn ab_test(&self, #[from_workflow] customer: String) -> Result<Provided<dyn Gateway>, Error> {
+        if customer.len() % 2 == 0 {
+            Ok(provide!(GatewayA))
+        } else {
+            Ok(provide!(GatewayB))
+        }
+    }
+}
 ```
 
 A step knows nothing of the flow. It simply asks for what it needs:
 
 ```rust
-#[Step]
-fn charge(#[Input] amount: Money, #[Service] gateway: &Gateway) -> Outcome {
-    gateway.take(amount)
+#[derive(Step)]
+struct Charge {
+    #[input]
+    card: String,
+    #[input]
+    amount: i64,
+}
+
+#[step]
+impl Charge {
+    fn run(
+        self,
+        #[service] gateway: &dyn Gateway,
+        #[contributor] mut contributor: Contributor<'_>,
+    ) -> Result<Outcome, Error> {
+        match gateway.take(&self.card, self.amount) {
+            Ok(receipt) => {
+                contributor.contribute("receipt", receipt);
+                Self::succeed()
+            }
+            Err(_) => Self::fail("expired-card"),
+        }
+    }
 }
 ```
 
-The circuit breaker is a policy. Before each retry, its hook either ends the journey as failed or returns nothing, which lets the retry go ahead:
+The circuit breaker is a policy. Before each retry, its hook either ends the journey as failed or carries on, which lets the retry go ahead:
 
 ```rust
-#[StepPolicy]
+#[step_policy(name = "circuit_breaker")]
 impl CircuitBreaker {
-    #[OnStepRetry]
-    fn still_worth_it(#[Role] breaker: &Breaker) -> Option<Lifecycle> {
-        if breaker.is_open() { Some(FailWorkflow("the bank is down")) } else { None }
+    #[on_step_retry]
+    fn still_worth_it(&self, #[role] breaker: &dyn Breaker) -> Result<Option<FailWorkflow>, Error> {
+        if breaker.is_open() {
+            return Self::fail_workflow("the-bank-is-down");
+        }
+        Self::carry_on()
     }
 }
 ```
@@ -234,24 +266,46 @@ What the diagram shows:
 Both declarations, side by side:
 
 ```rust
-#[Workflow(name = "national_payment", policies = [NotifyCustomer], providers = [ab_test])]
-#[Step(Onboard)]
-#[Step(Authorise, retry_budget = 2, policies = [CircuitBreaker])]
-#[Step(Charge, rescue = RefreshCard)]
-#[Step(SendReceipt)]
+#[workflow(name = "national_payment", policies = [NotifyCustomer])]
+#[with_step(Onboard, name = "onboard")]
+#[with_step(Authorise, name = "authorise", retry_budget = 2, policies = [CircuitBreaker])]
+#[with_step(Charge, name = "charge", rescue = RefreshCard)]
+#[with_step(SendReceipt, name = "send_receipt")]
 struct NationalPayment;
 
-#[Workflow(name = "international_payment", policies = [NotifyCustomer], providers = [international_gateway])]
-#[Step(Onboard)]
-#[Step(ScreenSanctions)]
-#[Step(ConvertCurrency)]
-#[Step(Authorise, retry_budget = 4, policies = [CircuitBreaker])]
-#[Step(Charge, rescue = RefreshCard, adapter = ConvertedAmount)]
-#[Step(SendReceipt)]
+#[workflow(name = "international_payment", policies = [NotifyCustomer])]
+#[with_step(Onboard, name = "onboard")]
+#[with_step(ScreenSanctions, name = "screen_sanctions")]
+#[with_step(ConvertCurrency, name = "convert_currency")]
+#[with_step(Authorise, name = "authorise", retry_budget = 4, policies = [CircuitBreaker])]
+#[with_step(Charge, name = "charge", rescue = RefreshCard)]
+#[with_step(SendReceipt, name = "send_receipt")]
 struct InternationalPayment;
+
+#[workflow]
+impl InternationalPayment {
+    /// The international payment's own gateway.
+    #[provider(key = "gateway")]
+    fn international_gateway(&self) -> Result<Provided<dyn Gateway>, Error> {
+        Ok(provide!(International))
+    }
+
+    /// Hands the charge the converted amount; every other input comes from the data bag.
+    #[input_adapter(steps = ["charge"])]
+    fn converted_amount(
+        &self,
+        #[key] key: &str,
+        #[from_workflow] converted: i64,
+    ) -> Result<Option<AnyValue>, Error> {
+        if key != "amount" {
+            return Self::from_data_bag();
+        }
+        Self::supply(converted)
+    }
+}
 ```
 
-Only `screen_sanctions` and `convert_currency` are new code. `onboard`, `authorise`, `charge` and `send_receipt` are the same steps, and the circuit breaker and the customer notification are the same policies. Each workflow still decides its own flow and its own services: the national payment keeps the A/B test choosing its gateway, the international one serves `charge` an international gateway, and it gives authorise more retries, because a foreign bank fails or times out more often. And `charge` asks for an `amount`, as it always has; in the international payment, the `ConvertedAmount` input adapter, part of that workflow, hands it the converted amount, so the step does not change.
+Only `screen_sanctions` and `convert_currency` are new code. `onboard`, `authorise`, `charge` and `send_receipt` are the same steps, and the circuit breaker and the customer notification are the same policies. Each workflow still decides its own flow and its own services: the national payment keeps the A/B test choosing its gateway, the international one provides an international gateway, and it gives authorise more retries, because a foreign bank fails or times out more often. And `charge` asks for an `amount`, as it always has; in the international payment, the `converted_amount` input adapter, part of that workflow, hands it the converted amount, so the step does not change.
 
 In the system as it grew, reusing the payment service meant reusing its retries, its A/B test and its circuit breaker too, whether the new flow wanted them or not. Here, a step brings only its business rule; everything about the flow stays with the workflow that uses it.
 
