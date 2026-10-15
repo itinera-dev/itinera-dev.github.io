@@ -9,7 +9,7 @@ Itinera has one specification and an implementation in each language. Every impl
 
 <!-- include: languages-table -->
 
-A **tier** is a level of meaning: tier 1 is a single workflow, with its steps, policies, retries, rescue steps, services and events. A **capability** is how a workflow runs, such as a synchronous or an asynchronous executor. [The roadmap](/roadmap/) lists the tiers, and [the specification](/specification/) says what each means.
+A **tier** is a level of meaning: tier 1 is a single workflow, with its steps, policies, retries, rescue steps, services and events. A **capability** is a property of an executor or of a language: how a workflow runs, such as a synchronous or an asynchronous executor, or what a language offers beside them, such as test support, which lets an application test its workflows. [The roadmap](/roadmap/) lists the tiers, and [the specification](/specification/) says what each means.
 
 <!-- include: languages-details -->
 

@@ -16,8 +16,10 @@ export interface Language {
 	state: 'planned' | 'preparing' | 'released';
 	version?: string;
 	tier?: number;
-	/** The execution modes of its executors, its capabilities: `synchronous`, `asynchronous`. */
+	/** The execution modes of its executors, some of its capabilities: `synchronous`, `asynchronous`. */
 	executors?: string[];
+	/** Whether it claims test support, the capability `testing`. */
+	testSupport?: boolean;
 	package?: string;
 	install?: string;
 	/** What else installing needs to say, such as how to get every capability. */
@@ -35,11 +37,13 @@ export const LANGUAGES = languages as Language[];
 const list = (items: string[]) =>
 	items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
 
-/** A language's capabilities, in words: "synchronous and asynchronous executors". */
 const capitalised = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
+/** A language's capabilities, in words: "synchronous and asynchronous executors, and test support". */
 const capabilities = (language: Language) =>
-	`${list(language.executors ?? [])} ${(language.executors ?? []).length === 1 ? 'executor' : 'executors'}`;
+	`${list(language.executors ?? [])} ${(language.executors ?? []).length === 1 ? 'executor' : 'executors'}${
+		language.testSupport ? ', and test support' : ''
+	}`;
 
 function version(language: Language): string {
 	if (language.state === 'planned') return 'Planned';
