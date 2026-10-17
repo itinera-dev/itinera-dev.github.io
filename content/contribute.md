@@ -38,7 +38,7 @@ The whole process, with how proposals are amended, how defects in the specificat
 
 ## How Itinera is built with AI
 
-Itinera is built mostly by agents, working under a written process: the specification is the source of truth, changes are reviewed by a separate reviewer agent as well as by a maintainer, and conformance is checked in every language. It is built under the terms of [A manifesto for software engineering with AI]({{manifesto}}), and the [contributing guide]({{contributing}}#how-itinera-is-built) says how.
+Itinera is built mostly by agents, working under a written process: the specification is the source of truth, changes are reviewed by a separate reviewer agent as well as by a maintainer, and conformance is checked in every language. It is built under the terms of [A manifesto for software engineering with AI]({{manifesto}}), and the [contributing guide]({{contributing}}#how-itinera-is-built) says how. If you want to see what that is like before you join, [Itinera built together]({{series}}) tells the story of how it was done, with the conversations quoted as they happened.
 
 It is also the argument of this site, practised: when a project's rules are written down and its flows are visible, agents can work in it safely.
 

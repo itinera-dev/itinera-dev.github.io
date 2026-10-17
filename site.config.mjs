@@ -47,6 +47,7 @@ export const facts = {
 	actions: 'https://github.com/itinera-dev/actions',
 	contributing: 'https://github.com/itinera-dev/.github/blob/main/CONTRIBUTING.md',
 	manifesto: 'https://marlon-sousa.com/blog/manifesto/',
+	series: 'https://marlon-sousa.com/series/itinera-built-together/',
 	'propose': 'https://github.com/itinera-dev/spec/issues/new/choose',
 	'report-site': 'https://github.com/itinera-dev/itinera-dev.github.io/issues/new',
 	'report-book': 'https://github.com/itinera-dev/book/issues/new',

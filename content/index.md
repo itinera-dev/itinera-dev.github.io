@@ -181,7 +181,7 @@ The [specification](/specification/) defines what a workflow means, in terms any
 
 ## Built in the open, with AI
 
-Itinera is itself built mostly by agents, under the process it describes: a specification as the source of truth, a proposal for every feature, and conformance checked in every language. It practises what it argues. [How to contribute](/contribute/), and the [manifesto]({{manifesto}}) it is built under.
+Itinera is itself built mostly by agents, under the process it describes: a specification as the source of truth, a proposal for every feature, and conformance checked in every language. It practises what it argues. [How to contribute](/contribute/), and the [manifesto]({{manifesto}}) it is built under. How it was built, conversation by conversation, is told in [Itinera built together]({{series}}), a series of articles by its maintainer.
 
 ## Where to go next
 
@@ -193,4 +193,5 @@ Itinera is itself built mostly by agents, under the process it describes: a spec
 6. [The roadmap](/roadmap/): what is there today, and what comes next.
 7. [How to propose a feature](/contribute/): one issue is all that is asked.
 8. [Each language's repository and API reference](/languages/).
-9. [News](/news/) and its [feed](/news/feed.xml).
+9. [Itinera built together]({{series}}): how a human and agents built Itinera, its specification, its tests, this site and the book, told by its maintainer.
+10. [News](/news/) and its [feed](/news/feed.xml).
