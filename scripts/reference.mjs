@@ -50,17 +50,24 @@ async function releasesOf(repository) {
 	return releases;
 }
 
-/** The edition a release gives, or undefined when it is a draft, names no version or has no reference attached. */
+/** The edition a release gives, or undefined, saying why, when it is a draft, names no version or has no reference attached. */
 function editionOf(release, asset) {
 	const version = release.tag_name.startsWith('v') ? semver.valid(release.tag_name.slice(1)) : null;
 	const file = release.assets.find((attached) => attached.name === asset);
-	if (release.draft || !version || !file) return undefined;
+	if (release.draft || !version) return undefined;
+	if (!file) {
+		console.warn(`The release ${release.tag_name} has no ${asset} attached, so it has no edition.`);
+		return undefined;
+	}
 	return { version, url: file.browser_download_url };
 }
 
+/** What the commands run in a repository's clone see: this build's environment, without its GitHub token. */
+const { GITHUB_TOKEN: _token, ...cloneEnvironment } = process.env;
+
 /** Runs a command, and stops everything when it fails. */
 function run(command, args, cwd) {
-	const result = spawnSync(command, args, { cwd, stdio: 'inherit', shell: process.platform === 'win32' });
+	const result = spawnSync(command, args, { cwd, env: cloneEnvironment, stdio: 'inherit', shell: process.platform === 'win32' });
 	if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed in ${cwd}.`);
 }
 

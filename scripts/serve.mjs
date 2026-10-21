@@ -6,7 +6,7 @@
 // and an unstyled page passes colour checks it would fail in a browser.
 
 import { existsSync } from 'node:fs';
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, join, relative } from 'node:path';
 
@@ -49,23 +49,30 @@ export async function findPages(dir = DIST) {
 /** The kinds of page TypeDoc writes, each in a directory of its own. */
 const REFERENCE_KINDS = ['modules', 'classes', 'interfaces', 'functions', 'types', 'variables'];
 
+/** The first page of a directory, by name, and its largest, which holds the most markup. */
+async function samplesOf(directory) {
+	const names = (await readdir(directory)).filter((name) => name.endsWith('.html')).sort();
+	const sizes = await Promise.all(names.map(async (name) => (await stat(join(directory, name))).size));
+	const largest = names[sizes.indexOf(Math.max(...sizes))];
+	return [...new Set([names[0], largest])].filter((name) => name !== undefined);
+}
+
 /**
- * A few pages of every edition of every API reference: its front page and
- * the first page of each kind it has. TypeDoc writes the same markup for
- * every page of a kind, so these stand for the hundreds of pages of each
- * edition, which would take too long to check one by one.
+ * A sample of the API references' pages: for the newest release, at each
+ * reference's path, and for `next/`, the front page and, of each kind of
+ * page, the first and the largest. Checking every page of an edition takes
+ * close to ten minutes, and the frozen editions of older releases are left
+ * out, since they can never change to pass a newer check.
  */
 export async function findReferencePages() {
 	const pages = [];
 	for (const reference of references) {
-		const root = fileFor(reference.path).replace(/index\.html$/, '');
-		if (!existsSync(root)) continue;
-		const editions = ['', ...(await readdir(root, { withFileTypes: true })).filter((entry) => entry.isDirectory()).map((entry) => `${entry.name}/`)];
-		for (const edition of editions.filter((edition) => existsSync(join(root, edition, 'index.html')))) {
+		for (const edition of ['', 'next/']) {
+			const root = join(DIST, reference.path, edition);
+			if (!existsSync(join(root, 'index.html'))) continue;
 			pages.push(`${reference.path}${edition}`);
-			for (const kind of REFERENCE_KINDS) {
-				const first = existsSync(join(root, edition, kind)) ? (await readdir(join(root, edition, kind))).filter((name) => name.endsWith('.html')).sort()[0] : undefined;
-				if (first) pages.push(`${reference.path}${edition}${kind}/${first}`);
+			for (const kind of REFERENCE_KINDS.filter((kind) => existsSync(join(root, kind)))) {
+				for (const name of await samplesOf(join(root, kind))) pages.push(`${reference.path}${edition}${kind}/${name}`);
 			}
 		}
 	}
