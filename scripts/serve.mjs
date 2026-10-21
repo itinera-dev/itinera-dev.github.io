@@ -5,9 +5,12 @@
 // styles and each other by absolute path, which a file:// URL cannot resolve,
 // and an unstyled page passes colour checks it would fail in a browser.
 
+import { existsSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, join, relative } from 'node:path';
+
+import { references } from '../site.config.mjs';
 
 export const DIST = join(process.cwd(), 'dist');
 
@@ -24,13 +27,16 @@ const TYPES = {
 	'.woff2': 'font/woff2',
 };
 
-/** Every built page's path, such as `/why/`, in order. */
+/** The directory of the API references, which TypeDoc writes rather than this site. */
+const REFERENCES = join(DIST, 'api');
+
+/** Every built page's path, such as `/why/`, in order, leaving out the API references. */
 export async function findPages(dir = DIST) {
 	const pages = [];
 	for (const entry of await readdir(dir, { withFileTypes: true })) {
 		const full = join(dir, entry.name);
 		if (entry.isDirectory()) {
-			if (entry.name === '_astro') continue;
+			if (entry.name === '_astro' || full === REFERENCES) continue;
 			pages.push(...(await findPages(full)));
 		} else if (entry.name === 'index.html') {
 			const path = relative(DIST, dir).split('\\').join('/');
@@ -38,6 +44,32 @@ export async function findPages(dir = DIST) {
 		}
 	}
 	return pages.sort();
+}
+
+/** The kinds of page TypeDoc writes, each in a directory of its own. */
+const REFERENCE_KINDS = ['modules', 'classes', 'interfaces', 'functions', 'types', 'variables'];
+
+/**
+ * A few pages of every edition of every API reference: its front page and
+ * the first page of each kind it has. TypeDoc writes the same markup for
+ * every page of a kind, so these stand for the hundreds of pages of each
+ * edition, which would take too long to check one by one.
+ */
+export async function findReferencePages() {
+	const pages = [];
+	for (const reference of references) {
+		const root = fileFor(reference.path).replace(/index\.html$/, '');
+		if (!existsSync(root)) continue;
+		const editions = ['', ...(await readdir(root, { withFileTypes: true })).filter((entry) => entry.isDirectory()).map((entry) => `${entry.name}/`)];
+		for (const edition of editions.filter((edition) => existsSync(join(root, edition, 'index.html')))) {
+			pages.push(`${reference.path}${edition}`);
+			for (const kind of REFERENCE_KINDS) {
+				const first = existsSync(join(root, edition, kind)) ? (await readdir(join(root, edition, kind))).filter((name) => name.endsWith('.html')).sort()[0] : undefined;
+				if (first) pages.push(`${reference.path}${edition}${kind}/${first}`);
+			}
+		}
+	}
+	return pages;
 }
 
 /** The file a URL path names in the built site. */

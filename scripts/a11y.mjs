@@ -1,5 +1,6 @@
-// Runs axe over every built page, and the 404 page, in the light and the dark
-// colour scheme, and fails on any violation. Each page is loaded once and
+// Runs axe over every built page, the 404 page and a few pages of every
+// edition of the API references, in the light and the dark colour scheme,
+// and fails on any violation. Each page is loaded once and
 // checked in both schemes on that load,
 // several pages at a time, and the results are printed in page order at the
 // end so the log can be followed, by ear too.
@@ -10,12 +11,12 @@
 import AxeBuilderImport from '@axe-core/playwright';
 import { chromium } from 'playwright';
 
-import { diagramsDrawn, findPages, serve } from './serve.mjs';
+import { diagramsDrawn, findPages, findReferencePages, serve } from './serve.mjs';
 
 const AxeBuilder = AxeBuilderImport.default ?? AxeBuilderImport;
 const WORKERS = 4;
 
-const pages = [...(await findPages()), '/404.html'];
+const pages = [...(await findPages()), '/404.html', ...(await findReferencePages())];
 const { origin, close } = await serve();
 const browser = await chromium.launch();
 const results = new Array(pages.length);

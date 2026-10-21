@@ -5,7 +5,7 @@
 
 import { chromium } from 'playwright';
 
-import { diagramsDrawn, findPages, serve } from './serve.mjs';
+import { diagramsDrawn, findPages, findReferencePages, serve } from './serve.mjs';
 
 const WIDTHS = [360, 390, 768, 1280];
 const TOLERANCE = 1;
@@ -13,7 +13,7 @@ const TOLERANCE = 1;
 function measure() {
 	const root = document.documentElement;
 	const viewport = root.clientWidth;
-	const main = document.querySelector('main')?.getBoundingClientRect();
+	const main = document.querySelector('main, [role="main"]')?.getBoundingClientRect();
 	const wide = [...document.querySelectorAll('pre, .table-scroll, .diagram__scroll, .diagram:not(.diagram--wide) svg, .listing')]
 		.map((element) => ({ element, box: element.getBoundingClientRect() }))
 		.filter(({ box }) => box.right > viewport + 1 || box.left < -1)
@@ -21,7 +21,7 @@ function measure() {
 	return { viewport, scrollWidth: root.scrollWidth, mainLeft: main?.left ?? 0, mainRight: main?.right ?? 0, wide };
 }
 
-const pages = [...(await findPages()), '/404.html'];
+const pages = [...(await findPages()), '/404.html', ...(await findReferencePages())];
 const { origin, close } = await serve();
 const browser = await chromium.launch();
 const problems = [];
