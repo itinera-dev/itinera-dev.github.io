@@ -1,8 +1,8 @@
-// Runs axe over every built page, and the 404 page, in the light and the dark
-// colour scheme, and fails on any violation. Each page is loaded once and
-// checked in both schemes on that load,
-// several pages at a time, and the results are printed in page order at the
-// end so the log can be followed, by ear too.
+// Runs axe over every built page, the 404 page and a sample of the API
+// references' pages, in the light and the dark colour scheme, and fails on
+// any violation. Each page is loaded once and checked in both schemes on
+// that load, several pages at a time, and the results are printed in page
+// order at the end so the log can be followed, by ear too.
 //
 // It is also the check of the highlighted code's colours, which come from the
 // highlighter's themes rather than from tokens.css.
@@ -10,12 +10,12 @@
 import AxeBuilderImport from '@axe-core/playwright';
 import { chromium } from 'playwright';
 
-import { diagramsDrawn, findPages, serve } from './serve.mjs';
+import { diagramsDrawn, findPages, findReferencePages, serve } from './serve.mjs';
 
 const AxeBuilder = AxeBuilderImport.default ?? AxeBuilderImport;
 const WORKERS = 4;
 
-const pages = [...(await findPages()), '/404.html'];
+const pages = [...(await findPages()), '/404.html', ...(await findReferencePages())];
 const { origin, close } = await serve();
 const browser = await chromium.launch();
 const results = new Array(pages.length);

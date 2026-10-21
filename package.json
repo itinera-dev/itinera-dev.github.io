@@ -13,11 +13,12 @@
     "check": "astro check",
     "contrast": "node scripts/contrast.mjs",
     "build:strict": "node scripts/build-strict.mjs",
+    "reference": "node scripts/reference.mjs",
     "pages": "node scripts/pages.mjs",
     "a11y": "node scripts/a11y.mjs",
     "layout": "node scripts/layout.mjs",
     "browsers": "playwright install --with-deps chromium",
-    "verify": "npm run check && npm run contrast && npm run build:strict && npm run pages && npm run a11y && npm run layout"
+    "verify": "npm run check && npm run contrast && npm run build:strict && npm run reference && npm run pages && npm run a11y && npm run layout"
   },
   "dependencies": {
     "@astrojs/sitemap": "3.7.3",
@@ -44,6 +45,7 @@
     "@types/node": "22.20.4",
     "playwright": "1.56.1",
     "playwright-core": "1.56.1",
+    "semver": "7.8.5",
     "typescript": "6.0.3"
   }
 }

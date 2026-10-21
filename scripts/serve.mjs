@@ -5,9 +5,12 @@
 // styles and each other by absolute path, which a file:// URL cannot resolve,
 // and an unstyled page passes colour checks it would fail in a browser.
 
-import { readFile, readdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, join, relative } from 'node:path';
+
+import { references } from '../site.config.mjs';
 
 export const DIST = join(process.cwd(), 'dist');
 
@@ -24,13 +27,16 @@ const TYPES = {
 	'.woff2': 'font/woff2',
 };
 
-/** Every built page's path, such as `/why/`, in order. */
+/** The directory of the API references, which TypeDoc writes rather than this site. */
+const REFERENCES = join(DIST, 'api');
+
+/** Every built page's path, such as `/why/`, in order, leaving out the API references. */
 export async function findPages(dir = DIST) {
 	const pages = [];
 	for (const entry of await readdir(dir, { withFileTypes: true })) {
 		const full = join(dir, entry.name);
 		if (entry.isDirectory()) {
-			if (entry.name === '_astro') continue;
+			if (entry.name === '_astro' || full === REFERENCES) continue;
 			pages.push(...(await findPages(full)));
 		} else if (entry.name === 'index.html') {
 			const path = relative(DIST, dir).split('\\').join('/');
@@ -38,6 +44,39 @@ export async function findPages(dir = DIST) {
 		}
 	}
 	return pages.sort();
+}
+
+/** The kinds of page TypeDoc writes, each in a directory of its own. */
+const REFERENCE_KINDS = ['modules', 'classes', 'interfaces', 'functions', 'types', 'variables'];
+
+/** The first page of a directory, by name, and its largest, which holds the most markup. */
+async function samplesOf(directory) {
+	const names = (await readdir(directory)).filter((name) => name.endsWith('.html')).sort();
+	const sizes = await Promise.all(names.map(async (name) => (await stat(join(directory, name))).size));
+	const largest = names[sizes.indexOf(Math.max(...sizes))];
+	return [...new Set([names[0], largest])].filter((name) => name !== undefined);
+}
+
+/**
+ * A sample of the API references' pages: for the newest release, at each
+ * reference's path, and for `next/`, the front page and, of each kind of
+ * page, the first and the largest. Checking every page of an edition takes
+ * close to ten minutes, and the frozen editions of older releases are left
+ * out, since they can never change to pass a newer check.
+ */
+export async function findReferencePages() {
+	const pages = [];
+	for (const reference of references) {
+		for (const edition of ['', 'next/']) {
+			const root = join(DIST, reference.path, edition);
+			if (!existsSync(join(root, 'index.html'))) continue;
+			pages.push(`${reference.path}${edition}`);
+			for (const kind of REFERENCE_KINDS.filter((kind) => existsSync(join(root, kind)))) {
+				for (const name of await samplesOf(join(root, kind))) pages.push(`${reference.path}${edition}${kind}/${name}`);
+			}
+		}
+	}
+	return pages;
 }
 
 /** The file a URL path names in the built site. */

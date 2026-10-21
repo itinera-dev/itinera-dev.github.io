@@ -16,6 +16,7 @@ The site owns Itinera's message, brand and design. The book takes its colours an
 - `src/lib/render.ts` turns a page's Markdown into HTML; `src/pages/` makes the pages, the Markdown copies, `/llms.txt`, the news feed, the sharing images and the icons.
 - `src/data/linked.json` lists the book's pages and the specification's files, so the link check can verify links into them. Refresh it when either moves.
 - `scripts/` holds the checks that `npm run verify` runs.
+- `scripts/reference.mjs` builds the API references into the site, as `references` in `site.config.mjs` lists them: TypeScript's at `/api/typescript/`, in editions as the book is, with the newest release there, a frozen copy of each release at `/api/typescript/VERSION/`, taken from the reference attached to its GitHub release in itinera-ts, and `next/` built from itinera-ts with its own `npm run docs`. TypeDoc writes them, not this site, so the checks leave them out of the site's pages, check links into them against what was built, and run axe and the layout check on a sample of the pages of the newest release and of `next/`. itinera-ts asks for a new deployment with a `repository_dispatch` event of type `api-reference` after a release and after each change on its main branch.
 
 ## Rules the site keeps
 
@@ -35,7 +36,7 @@ Use the words defined in chapter 1 of the specification, [01-concepts.md](https:
 1. **Screen-reader friendly writing.** Headings, lists, prose and simple tables. Diagrams are Mermaid diagrams in fenced `mermaid` blocks, drawn in the reader's browser; each declares `accTitle` and `accDescr` and is followed by text, usually a numbered list, that says everything it shows. No ASCII-art diagrams, no arrows drawn with characters, no box-drawing trees.
 2. **British spelling,** in a plain and warm voice.
 3. **No code in workflow YAML.** Automation is Python, standard library only, in [itinera-dev/actions](https://github.com/itinera-dev/actions), with tests; a workflow only declares triggers and permissions and calls actions at pinned versions, and runs the scripts of `package.json`. The full rule is the "Automation" section of the [contributing guide](https://github.com/itinera-dev/.github/blob/main/CONTRIBUTING.md#automation).
-4. **Every change passes `npm run verify`** before it is pushed: the type check, the contrast check, a forced build, the check of every page, link, Markdown copy and sharing image, axe on every page in both colour schemes, and the layout check from 360 to 1280 pixels wide. The Pages workflow runs it on every pull request and before every deployment, and deploys only from `main`.
+4. **Every change passes `npm run verify`** before it is pushed: the type check, the contrast check, a forced build, the build of the API references, which needs the network (GitHub's API, the releases' files and a clone of itinera-ts), the check of every page, link, Markdown copy and sharing image, axe on every page in both colour schemes, and the layout check from 360 to 1280 pixels wide, both of which take a sample of the references' pages. The Pages workflow runs it on every pull request and before every deployment, and deploys only from `main`.
 
 ## Commits and pull requests
 

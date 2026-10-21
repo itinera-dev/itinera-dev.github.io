@@ -27,6 +27,35 @@ export const maintainers = [{ name: 'Marlon Sousa', url: 'https://marlon-sousa.c
  */
 export const book = '/book/';
 
+/**
+ * The API references this site serves, one per language, each in editions as
+ * the book is: the newest release at `path`, a frozen copy of every release at
+ * `path` followed by its version, and the repository's `next` ref, its main
+ * branch, at `path` followed by `next/`. `scripts/reference.mjs` builds them
+ * into the site.
+ *
+ * Each release's edition is the file `asset` attached to the repository's
+ * GitHub release of that version, tagged `v` followed by it. The `next`
+ * edition is built here, by the repository's own `npm run docs`, under the
+ * title `name` followed by "next".
+ *
+ * itinera-ts's `next` follows the top branch of its tier 1 stack until the
+ * stack merges into its main branch, since main does not build the reference
+ * this site serves before then.
+ *
+ * @type {{ language: string, name: string, path: string, repository: string, next: string, asset: string }[]}
+ */
+export const references = [
+	{
+		language: 'TypeScript',
+		name: 'itinera',
+		path: '/api/typescript/',
+		repository: 'itinera-dev/itinera-ts',
+		next: 'claude/project-thread-gl5yqg',
+		asset: 'api-reference.tar.gz',
+	},
+];
+
 /** The directory holding every page's Markdown. */
 export const contentDirectory = resolve(process.cwd(), 'content');
 
