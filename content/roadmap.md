@@ -28,6 +28,6 @@ Waiting between attempts, back off, is planned too.
 4. **Tiers 2 and 3,** specified and implemented in Rust.
 5. **Durable runs,** with a store interface and a first store backed by a database.
 6. **Studio,** which draws workflows, and the connections between them, from their definitions.
-7. **More languages:** TypeScript, which has its first release, then the JVM, with Kotlin first and support for Java.
+7. **More languages:** TypeScript, which is released, then the JVM, with Kotlin first and support for Java.
 
 [Languages](/languages/) says exactly what each language offers today.
