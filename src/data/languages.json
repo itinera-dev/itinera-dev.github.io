@@ -19,7 +19,20 @@
 	{
 		"id": "typescript",
 		"name": "TypeScript",
-		"state": "planned"
+		"state": "released",
+		"version": "0.1.0-beta.5",
+		"tier": 1,
+		"executors": ["asynchronous"],
+		"valueConversions": true,
+		"testSupport": true,
+		"package": "itinera",
+		"install": "npm install itinera@0.1.0-beta.5 reflect-metadata",
+		"installNote": "on Node 22.12 or later, with TypeScript 5.5 or later and the compiler options `strict`, `experimentalDecorators` and `emitDecoratorMetadata` turned on",
+		"repository": "https://github.com/itinera-dev/itinera-ts",
+		"book": "/book/typescript/",
+		"api": "https://itinera-dev.org/itinera-ts/",
+		"manifest": "https://github.com/itinera-dev/itinera-ts/blob/main/conformance.json",
+		"architecture": "https://github.com/itinera-dev/itinera-ts/blob/main/docs/architecture.md"
 	},
 	{
 		"id": "jvm",

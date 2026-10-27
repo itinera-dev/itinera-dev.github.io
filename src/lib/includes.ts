@@ -18,6 +18,8 @@ export interface Language {
 	tier?: number;
 	/** The execution modes of its executors, some of its capabilities: `synchronous`, `asynchronous`. */
 	executors?: string[];
+	/** Whether it claims value conversions, the capability `value-conversions`. */
+	valueConversions?: boolean;
 	/** Whether it claims test support, the capability `testing`. */
 	testSupport?: boolean;
 	package?: string;
@@ -39,11 +41,20 @@ const list = (items: string[]) =>
 
 const capitalised = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
-/** A language's capabilities, in words: "synchronous and asynchronous executors, and test support". */
-const capabilities = (language: Language) =>
-	`${list(language.executors ?? [])} ${(language.executors ?? []).length === 1 ? 'executor' : 'executors'}${
-		language.testSupport ? ', and test support' : ''
-	}`;
+const article = (word: string) => (/^[aeiou]/i.test(word) ? 'an' : 'a');
+
+/** A language's capabilities, in words: "synchronous and asynchronous executors, and test support", or "an asynchronous executor, value conversions and test support". */
+function capabilities(language: Language): string {
+	const executors = language.executors ?? [];
+	const parts = [
+		executors.length === 1 ? `${article(list(executors))} ${list(executors)} executor` : `${list(executors)} executors`,
+		...(language.valueConversions ? ['value conversions'] : []),
+		...(language.testSupport ? ['test support'] : []),
+	];
+	const last = parts.pop();
+	const comma = parts.some((part) => part.includes(' and ')) ? ',' : '';
+	return parts.length === 0 ? (last ?? '') : `${parts.join(', ')}${comma} and ${last}`;
+}
 
 function version(language: Language): string {
 	if (language.state === 'planned') return 'Planned';
@@ -89,23 +100,31 @@ function languagesDetails(): string {
 		.join('\n\n');
 }
 
+const released = () => LANGUAGES.filter((language) => language.state === 'released');
+const preparing = () => LANGUAGES.filter((language) => language.state === 'preparing');
+const named = (language: Language) => `${language.name} ${language.version}`;
+
 /** The line under the home page's hero that says what can be used today. */
 function status(): string {
-	const lines = LANGUAGES.filter((language) => language.state !== 'planned').map((language) =>
-		language.state === 'preparing'
-			? `${language.name} ${language.version} is in preparation and not published yet.`
-			: `Latest release: ${language.name} ${language.version}, tier ${language.tier}.`,
-	);
+	const latest = released();
+	const tiers = latest.map((language) => `tier ${language.tier}`);
+	let tier = `${list(tiers)} respectively`;
+	if (latest.length === 1) tier = list(tiers);
+	else if (new Set(tiers).size === 1) tier = `each ${tiers.at(0)}`;
+	const lines = [
+		...(latest.length > 0 ? [`Latest ${latest.length === 1 ? 'release' : 'releases'}: ${list(latest.map(named))}, ${tier}.`] : []),
+		...preparing().map((language) => `${named(language)} is in preparation and not published yet.`),
+	];
 	return `**Status:** ${lines.join(' ')}`;
 }
 
-/** Who implements tier 1, and where each stands: one sentence per language. */
+/** Who implements tier 1, and where each stands. */
 function implementations(): string {
-	const sentences = LANGUAGES.filter((language) => language.state !== 'planned').map((language) =>
-		language.state === 'preparing'
-			? `${language.name} ${language.version} implements it, and is in preparation.`
-			: `${language.name} ${language.version} implements it.`,
-	);
+	const latest = released();
+	const sentences = [
+		...(latest.length > 0 ? [`${list(latest.map(named))} ${latest.length === 1 ? 'implements' : 'implement'} it.`] : []),
+		...preparing().map((language) => `${named(language)} implements it, and is in preparation.`),
+	];
 	return sentences.length === 0 ? 'No language implements it yet.' : sentences.join(' ');
 }
 

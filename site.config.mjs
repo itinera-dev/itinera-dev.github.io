@@ -27,6 +27,13 @@ export const maintainers = [{ name: 'Marlon Sousa', url: 'https://marlon-sousa.c
  */
 export const book = '/book/';
 
+/**
+ * The addresses of this domain that other repositories' GitHub Pages serve,
+ * such as the TypeScript API reference that itinera-ts publishes. The checks
+ * of this site never look inside them.
+ */
+export const projectSites = ['/itinera-ts/'];
+
 /** The directory holding every page's Markdown. */
 export const contentDirectory = resolve(process.cwd(), 'content');
 

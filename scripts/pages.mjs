@@ -8,7 +8,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { book, contentDirectory, facts, site } from '../site.config.mjs';
+import { book, contentDirectory, facts, projectSites, site } from '../site.config.mjs';
 import { DIST, fileFor, findPages } from './serve.mjs';
 
 const problems = [];
@@ -44,6 +44,7 @@ const linked = JSON.parse(readFileSync(new URL('../src/data/linked.json', import
 const bookPages = new Set(linked.book.pages);
 const specFiles = new Set(linked.spec.files);
 const inTheBook = (path) => path.startsWith(book);
+const inAProjectSite = (path) => projectSites.some((prefix) => path.startsWith(prefix));
 const specPrefix = `${facts.spec}/blob/${facts['spec-ref']}/`;
 
 /** Checks a link into the specification, found on `page`. */
@@ -71,8 +72,9 @@ let links = 0;
 
 /** Checks one link to a path of this site, found on `page` (whose file is `file`). */
 function checkLink(page, file, url) {
-	links += 1;
 	const [path, fragment] = url.split('#');
+	if (inAProjectSite(path)) return;
+	links += 1;
 	if (path === '' && fragment !== undefined) {
 		if (!idsOf(file).has(fragment)) problems.push(`${page} links to #${fragment}, which is not on the page.`);
 		return;

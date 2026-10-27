@@ -16,17 +16,20 @@ flowchart LR
     P[Accepted proposals] --> S[The specification]
     S --> C[The conformance suite]
     S --> R[Rust implementation]
-    S --> T[Later languages]
+    S --> TS[TypeScript implementation]
+    S --> T[Later languages, such as the JVM]
     C --> R
+    C --> TS
     C --> T
     R --> REP[Each release carries its conformance report]
+    TS --> REP
 ```
 
 What the diagram shows:
 
 1. Every feature starts as a proposal. Once accepted, it is written into the specification.
 2. The conformance suite holds cases, written as data, that check the specification's behaviour.
-3. Each language's implementation follows the specification and runs the conformance cases.
+3. The Rust and TypeScript implementations, and later languages such as the JVM, follow the specification and run the conformance cases.
 4. Each release of an implementation carries its conformance report, the proof of what it claims.
 
 ## The specification
