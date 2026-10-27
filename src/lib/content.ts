@@ -22,6 +22,8 @@ export interface Page {
 	description: string;
 	/** For a post, the day it was published, as `YYYY-MM-DD`. */
 	date?: string;
+	/** For a post, when it was published, in UTC: its date, at the time its front matter gives or at midnight. */
+	published?: string;
 }
 
 const FRONT_MATTER = /^---\n([\s\S]*?)\n---\n/;
@@ -53,7 +55,10 @@ function pageOf(file: string, path: string, markdownPath: string): Page {
 	if (file.startsWith('news/') && !/^\d{4}-\d{2}-\d{2}$/.test(date ?? '')) {
 		throw new Error(`content/${file}: a post needs a date, written YYYY-MM-DD.`);
 	}
-	return { slug, path, markdownPath, file, title: fields.title, description: fields.description, date };
+	const time = fields.time ?? '00:00';
+	if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) throw new Error(`content/${file}: a post's time is written HH:MM, in UTC.`);
+	const published = date === undefined ? undefined : `${date}T${time}:00Z`;
+	return { slug, path, markdownPath, file, title: fields.title, description: fields.description, date, published };
 }
 
 // content/news/ may not exist before the first post: git keeps no empty directory.
@@ -76,14 +81,14 @@ export function pages(): Page[] {
 		.sort((a, b) => rank(a) - rank(b));
 }
 
-/** Every post, the newest first. */
+/** Every post, the newest first; posts of one day are ordered by their time. */
 export function posts(): Page[] {
 	return markdownFiles('news')
 		.map((name) => {
 			const slug = name.replace(/\.md$/, '');
 			return pageOf(`news/${name}`, `/news/${slug}/`, `/news/${slug}.md`);
 		})
-		.sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''));
+		.sort((a, b) => (b.published ?? '').localeCompare(a.published ?? ''));
 }
 
 /** The page whose file name is `slug`. */

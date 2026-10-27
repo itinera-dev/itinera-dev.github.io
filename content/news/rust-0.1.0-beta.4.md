@@ -2,6 +2,7 @@
 title: Rust 0.1.0-beta.4 is released
 description: The fourth beta of Itinera for Rust, with clearer violations and aborts, claiming tier 1 of specification 0.1.0.
 date: 2026-10-27
+time: 02:36
 ---
 
 # Rust 0.1.0-beta.4 is released

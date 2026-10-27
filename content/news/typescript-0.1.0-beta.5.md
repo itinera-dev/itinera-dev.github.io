@@ -2,6 +2,7 @@
 title: TypeScript 0.1.0-beta.5 is released
 description: The first release of Itinera for TypeScript, a beta on npm, claiming tier 1 of specification 0.1.0.
 date: 2026-10-27
+time: 03:53
 ---
 
 # TypeScript 0.1.0-beta.5 is released

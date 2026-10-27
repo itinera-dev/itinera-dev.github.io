@@ -10,7 +10,7 @@ The site owns Itinera's message, brand and design. The book takes its colours an
 
 ## Where things are
 
-- `content/` holds every page as Markdown, one file per page, with a front matter block giving its `title` and `description`. `content/index.md` is the home page; `content/news/` holds the posts, each with a `date`. A page's Markdown is its single source: the HTML page and the Markdown copy for agents, at the page's address with `.md` added, are both made from it.
+- `content/` holds every page as Markdown, one file per page, with a front matter block giving its `title` and `description`. `content/index.md` is the home page; `content/news/` holds the posts, each with a `date`, and a `time` in UTC when several share a day. A page's Markdown is its single source: the HTML page and the Markdown copy for agents, at the page's address with `.md` added, are both made from it.
 - `site.config.mjs` holds the facts a page names as `{{name}}`, such as the specification's version and the git refs links point at. `src/data/languages.json` holds each language's version, tier and links. Pages include tables made from them as `<!-- include: name -->`; `src/lib/includes.ts` lists what can be included.
 - `src/lib/message.ts` holds the slogan, the vision and the mission. `src/lib/logo.mjs` draws every form of the logo. `src/styles/tokens.css` holds the colours.
 - `src/lib/render.ts` turns a page's Markdown into HTML; `src/pages/` makes the pages, the Markdown copies, `/llms.txt`, the news feed, the sharing images and the icons.

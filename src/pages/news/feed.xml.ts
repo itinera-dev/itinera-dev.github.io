@@ -10,13 +10,13 @@ const escape = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;
 export const GET: APIRoute = () => {
 	const all = posts();
 	// A feed with no post still needs an updated date: the day the site started.
-	const updated = `${all[0]?.date ?? '2026-10-12'}T00:00:00Z`;
+	const updated = all[0]?.published ?? '2026-10-12T00:00:00Z';
 	const entries = all.map(
 		(post) => `	<entry>
 		<title>${escape(post.title)}</title>
 		<link href="${site}${post.path}"/>
 		<id>${site}${post.path}</id>
-		<updated>${post.date}T00:00:00Z</updated>
+		<updated>${post.published}</updated>
 		<summary>${escape(post.description)}</summary>
 	</entry>`,
 	);
