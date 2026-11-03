@@ -43,6 +43,36 @@ const commit = built.commit.slice(0, 7);
 // "A, B and C", with each name linked to its maintainer's site.
 const maintainerParts = new Intl.ListFormat('en-GB').formatToParts(maintainers.map(({ name }) => name));
 const urlOf = (name: string) => maintainers.find((maintainer) => maintainer.name === name)?.url;
+
+// Structured data for search engines, on the home page only: what Itinera is
+// and who maintains it. Each maintainer is identified by the `#person` record
+// on their own site, so a search engine can tie this project to the person and
+// not just to a name several people share.
+const home = title === undefined && !notFound;
+const structuredData = home
+	? JSON.stringify([
+			{
+				'@context': 'https://schema.org',
+				'@type': 'WebSite',
+				name: 'Itinera',
+				url: new URL('/', Astro.site).href,
+			},
+			{
+				'@context': 'https://schema.org',
+				'@type': 'SoftwareSourceCode',
+				name: 'Itinera',
+				description,
+				url: new URL('/', Astro.site).href,
+				codeRepository: organisation,
+				maintainer: maintainers.map(({ name, url }) => ({
+					'@type': 'Person',
+					'@id': new URL('#person', url).href,
+					name,
+					url,
+				})),
+			},
+		]).replace(/</g, '\\u003c')
+	: undefined;
 ---
 
 <!doctype html>
@@ -76,6 +106,7 @@ const urlOf = (name: string) => maintainers.find((maintainer) => maintainer.name
 		<meta property="og:image:alt" content={imageAlt} />
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:image:alt" content={imageAlt} />
+		{structuredData && <script is:inline type="application/ld+json" set:html={structuredData} />}
 	</head>
 	<body>
 		<a class="skip-link" href="#main">Skip to the text</a>
