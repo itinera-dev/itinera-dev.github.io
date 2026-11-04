@@ -44,7 +44,7 @@
 		"testSupport": true,
 		"package": "org.itinera-dev:itinera-kotlin",
 		"install": "implementation(\"org.itinera-dev:itinera-kotlin:0.1.0-beta.7\")",
-		"installNote": "under `dependencies` in a Gradle build, on JDK 17 or later and Kotlin 2.3 or later, adding `testImplementation(\"org.itinera-dev:itinera-testing:0.1.0-beta.7\")` for test support; the book also shows the bill of materials, `itinera-bom`, and Maven",
+		"installNote": "under `dependencies` in a Gradle build, on JDK 17 or later, Kotlin 2.3 or later and kotlinx.coroutines 1.11 or later, adding `testImplementation(\"org.itinera-dev:itinera-testing:0.1.0-beta.7\")` for test support; the book also shows the bill of materials, `itinera-bom`, and Maven",
 		"repository": "https://github.com/itinera-dev/itinera-j",
 		"book": "/book/kotlin/",
 		"api": "https://javadoc.io/doc/org.itinera-dev/itinera-kotlin",

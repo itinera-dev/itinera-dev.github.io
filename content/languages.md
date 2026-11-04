@@ -13,6 +13,6 @@ A **tier** is a level of meaning: tier 1 is a single workflow, with its steps, p
 
 <!-- include: languages-details -->
 
-## More languages
+## Further languages
 
-Kotlin and Java share one implementation, itinera-j, released for both at once, so a workflow written in one can use parts written in the other. Every language follows the same specification and runs the same conformance cases, so a workflow means the same in each. A new language starts with a proposal, like any other change; [Contribute](/contribute/) says how.
+Every language follows the same specification and runs the same conformance cases, so a workflow means the same in each. A new language starts with a proposal, like any other change; [Contribute](/contribute/) says how.
