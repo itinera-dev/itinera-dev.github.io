@@ -1,7 +1,7 @@
 {
 	"about": "What the site's links outside its own build may point at, so the link check can verify them without the network. Refresh it when the book or the specification moves: the book's pages from each released language's chapters/README.md of itinera-dev/book, the specification's files from its git tree at the ref in site.config.mjs.",
 	"book": {
-		"commit": "59e7ad8cea4f5390bd95a734bbab2d74d4090dd2",
+		"commit": "85e902f223548022ac1eb12c0f77e04fe5806962",
 		"pages": [
 			"/book/",
 			"/book/rust/",
