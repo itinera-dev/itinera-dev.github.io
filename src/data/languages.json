@@ -35,8 +35,37 @@
 		"architecture": "https://github.com/itinera-dev/itinera-ts/blob/main/docs/architecture.md"
 	},
 	{
-		"id": "jvm",
-		"name": "The JVM (Kotlin, with support for Java)",
-		"state": "planned"
+		"id": "kotlin",
+		"name": "Kotlin",
+		"state": "released",
+		"version": "0.1.0-beta.7",
+		"tier": 1,
+		"executors": ["synchronous", "asynchronous"],
+		"testSupport": true,
+		"package": "org.itinera-dev:itinera-kotlin",
+		"install": "implementation(\"org.itinera-dev:itinera-kotlin:0.1.0-beta.7\")",
+		"installNote": "under `dependencies` in a Gradle build, on JDK 17 or later and Kotlin 2.3 or later, adding `testImplementation(\"org.itinera-dev:itinera-testing:0.1.0-beta.7\")` for test support; the book also shows the bill of materials, `itinera-bom`, and Maven",
+		"repository": "https://github.com/itinera-dev/itinera-j",
+		"book": "/book/kotlin/",
+		"api": "https://javadoc.io/doc/org.itinera-dev/itinera-kotlin",
+		"manifest": "https://github.com/itinera-dev/itinera-j/blob/main/conformance-kotlin.json",
+		"architecture": "https://github.com/itinera-dev/itinera-j/blob/main/docs/architecture.md"
+	},
+	{
+		"id": "java",
+		"name": "Java",
+		"state": "released",
+		"version": "0.1.0-beta.7",
+		"tier": 1,
+		"executors": ["synchronous"],
+		"testSupport": true,
+		"package": "org.itinera-dev:itinera-java",
+		"install": "implementation(\"org.itinera-dev:itinera-java:0.1.0-beta.7\")",
+		"installNote": "under `dependencies` in a Gradle build, on JDK 17 or later, compiling with javac's `-parameters` and adding `testImplementation(\"org.itinera-dev:itinera-testing:0.1.0-beta.7\")` for test support; the book also shows the bill of materials, `itinera-bom`, and Maven",
+		"repository": "https://github.com/itinera-dev/itinera-j",
+		"book": "/book/java/",
+		"api": "https://javadoc.io/doc/org.itinera-dev/itinera-java",
+		"manifest": "https://github.com/itinera-dev/itinera-j/blob/main/conformance-java.json",
+		"architecture": "https://github.com/itinera-dev/itinera-j/blob/main/docs/architecture.md"
 	}
 ]

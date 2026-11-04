@@ -12,24 +12,25 @@ Itinera is defined once, by a specification written in plain language, and imple
 ```mermaid
 flowchart LR
     accTitle: How the specification, the conformance suite and the implementations fit together
-    accDescr: Accepted proposals are written into the specification. The conformance cases check the specification's behaviour. Each language's implementation follows the specification and runs the conformance cases, and each release carries its report.
+    accDescr: Accepted proposals are written into the specification. The conformance cases check the specification's behaviour. The Rust, TypeScript and JVM implementations, the JVM one serving Kotlin and Java, follow the specification and run the conformance cases, and each release carries its report.
     P[Accepted proposals] --> S[The specification]
     S --> C[The conformance suite]
     S --> R[Rust implementation]
     S --> TS[TypeScript implementation]
-    S --> T[Later languages, such as the JVM]
+    S --> J[JVM implementation, for Kotlin and Java]
     C --> R
     C --> TS
-    C --> T
+    C --> J
     R --> REP[Each release carries its conformance report]
     TS --> REP
+    J --> REP
 ```
 
 What the diagram shows:
 
 1. Every feature starts as a proposal. Once accepted, it is written into the specification.
 2. The conformance suite holds cases, written as data, that check the specification's behaviour.
-3. The Rust and TypeScript implementations, and later languages such as the JVM, follow the specification and run the conformance cases.
+3. The Rust, TypeScript and JVM implementations, the JVM one serving both Kotlin and Java, follow the specification and run the conformance cases.
 4. Each release of an implementation carries its conformance report, the proof of what it claims.
 
 ## The specification
